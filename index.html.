@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+
+        content="width=device-width, initial-scale=1">
+
+  <meta name="theme-color" content="#030b16">
+
+  <title>JARVIS AI</title>
+
+  <style>
+
+    * { box-sizing: border-box; }
+
+    body {
+
+      margin: 0;
+
+      min-height: 100vh;
+
+      background: #030b16;
+
+      color: #e5f8ff;
+
+      font-family: -apple-system, Arial, sans-serif;
+
+      text-align: center;
+
+      padding: 28px 18px;
+
+    }
+
+    h1 {
+
+      color: #55dfff;
+
+      letter-spacing: 6px;
+
+      margin-top: 28px;
+
+    }
+
+    .orb {
+
+      width: 170px;
+
+      height: 170px;
+
+      margin: 35px auto 22px;
+
+      border: 3px solid #35d9ff;
+
+      border-radius: 50%;
+
+      display: grid;
+
+      place-items: center;
+
+      box-shadow: 0 0 35px #087ea455,
+
+                  inset 0 0 30px #087ea455;
+
+      font-size: 65px;
+
+      color: #8beaff;
+
+    }
+
+    .status { color: #4bffc4; }
+
+    .muted { color: #8baabd; }
+
+    #chat {
+
+      max-width: 520px;
+
+      margin: 25px auto;
+
+      text-align: left;
+
+    }
+
+    .bubble {
+
+      background: #0a1a2b;
+
+      border: 1px solid #16425b;
+
+      border-radius: 12px;
+
+      padding: 14px;
+
+      margin: 10px 0;
+
+      line-height: 1.5;
+
+      overflow-wrap: anywhere;
+
+    }
+
+    input {
+
+      width: 100%;
+
+      padding: 15px;
+
+      border-radius: 10px;
+
+      border: 1px solid #24799c;
+
+      background: #09192a;
+
+      color: white;
+
+      font-size: 16px;
+
+    }
+
+    button {
+
+      padding: 14px 18px;
+
+      margin: 8px 4px;
+
+      border: 0;
+
+      border-radius: 10px;
+
+      background: #087ea4;
+
+      color: white;
+
+      font-weight: bold;
+
+      font-size: 15px;
+
+    }
+
+    button:active { opacity: 0.7; }
+
+  </style>
+
+</head>
+
+<body>
+
+  <h1>J.A.R.V.I.S</h1>
+
+  <p class="muted">YOUR PERSONAL AI ASSISTANT</p>
+
+  <div class="orb">J</div>
+
+  <p class="status" id="status">● SYSTEM ONLINE</p>
+
+  <h2>Hello, Boss.</h2>
+
+  <p class="muted">Your assistant is ready.</p>
+
+  <div id="chat">
+
+    <div class="bubble">
+
+      <strong>JARVIS</strong><br>
+
+      All systems online, Boss. How can I help?
+
+    </div>
+
+  </div>
+
+  <input id="command"
+
+         placeholder="Type a command, Boss..."
+
+         autocomplete="off">
+
+  <div>
+
+    <button id="send">SEND COMMAND</button>
+
+    <button id="mic">🎙 SPEAK</button>
+
+  </div>
+
+  <script>
+
+    const command = document.getElementById("command");
+
+    const chat = document.getElementById("chat");
+
+    const status = document.getElementById("status");
+
+    function speak(text) {
+
+      if (!("speechSynthesis" in window)) {
+
+        status.textContent = "Speech output unavailable";
+
+        return;
+
+      }
+
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+
+      utterance.lang = "en-IN";
+
+      utterance.rate = 0.95;
+
+      window.speechSynthesis.speak(utterance);
+
+    }
+
+    function addMessage(name, text) {
+
+      const bubble = document.createElement("div");
+
+      bubble.className = "bubble";
+
+      const heading = document.createElement("strong");
+
+      heading.textContent = name;
+
+      const content = document.createElement("div");
+
+      content.textContent = text;
+
+      bubble.append(heading, document.createElement("br"), content);
+
+      chat.appendChild(bubble);
+
+    }
+
+    function replyTo(text) {
+
+      const q = text.toLowerCase();
+
+      let answer;
+
+      if (q.includes("hello") || q.includes("hi")) {
+
+        answer = "Hello, Boss! JARVIS is online.";
+
+      } else if (q.includes("your name")) {
+
+        answer = "I am JARVIS, your personal assistant.";
+
+      } else if (q.includes("time")) {
+
+        answer = "The time is " +
+
+          new Date().toLocaleTimeString("en-IN", {
+
+            hour: "numeric",
+
+            minute: "2-digit"
+
+          });
+
+      } else if (q.includes("date")) {
+
+        answer = "Today is " +
+
+          new Date().toLocaleDateString("en-IN", {
+
+            dateStyle: "full"
+
+          });
+
+      } else {
+
+        answer = "I heard you, Boss. My real AI brain is not connected yet.";
+
+      }
+
+      addMessage("JARVIS", answer);
+
+      speak(answer);
+
+    }
+
+    function send() {
+
+      const text = command.value.trim();
+
+      if (!text) return;
+
+      addMessage("YOU", text);
+
+      command.value = "";
+
+      replyTo(text);
+
+    }
+
+    document.getElementById("send").onclick = send;
+
+    command.addEventListener("keydown", event => {
+
+      if (event.key === "Enter") send();
+
+    });
+
+    document.getElementById("mic").onclick = () => {
+
+      const SpeechRecognition =
+
+        window.SpeechRecognition ||
+
+        window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+
+        status.textContent =
+
+          "Voice recognition unavailable here. Try typing.";
+
+        return;
+
+      }
+
+      const recognition = new SpeechRecognition();
+
+      recognition.lang = "en-IN";
+
+      recognition.continuous = false;
+
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+
+        status.textContent = "● LISTENING, BOSS...";
+
+      };
+
+      recognition.onresult = event => {
+
+        command.value =
+
+          event.results[0][0].transcript;
+
+        send();
+
+      };
+
+      recognition.onerror = () => {
+
+        status.textContent =
+
+          "Microphone unavailable. Check permissions.";
+
+      };
+
+      recognition.onend = () => {
+
+        status.textContent = "● SYSTEM ONLINE";
+
+      };
+
+      recognition.start();
+
+    };
+
+  </script>
+
+</body>
+
+</html>
