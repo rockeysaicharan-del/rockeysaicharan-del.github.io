@@ -39,7 +39,6 @@
             border: 1px solid #30363d;
             padding: 12px;
             border-radius: 8px;
-            margin-bottom: 12px;
             background: #0d1117;
             display: flex;
             flex-direction: column;
@@ -59,13 +58,14 @@
         }
         .ai-msg {
             align-self: flex-start;
-            background-color: #21262d;
+            background: #21262d;
             color: #e6edf3;
             border: 1px solid #30363d;
         }
         .input-area {
             display: flex;
             gap: 8px;
+            margin-top: 12px;
         }
         input {
             flex: 1;
@@ -74,7 +74,6 @@
             border: 1px solid #30363d;
             background: #21262d;
             color: #fff;
-            outline: none;
         }
         button {
             padding: 10px 16px;
@@ -102,33 +101,7 @@
 </div>
 
 <script>
-    #!/bin/bash
-set -e -E
-
-GEMINI_API_KEY="$GEMINI_API_KEY"
-
-cat << EOF > request.json
-{
-    "model": "models/gemini-3.8-flash",
-    "input": "INSERT_INPUT_HERE",
-    "tools": [
-        {
-            "type": "google_search"
-        }
-    ],
-    "generation_config": {
-        "max_output_tokens": 65536,
-        "thinking_level": "medium"
-    }
-}
-EOF
-
-curl \
--X POST \
--H "Content-Type: application/json" \
-"https://generativelanguage.googleapis.com/v1beta/interactions?key=${GEMINI_API_KEY}" -d '@request.json'
-
-
+    const API_KEY = "AQ.Ab8RN6KGhJioCSf7qF7Lw4wsVloej7pbmQNq8QRUzeqI5lQ0HA";
 
     async function sendMessage() {
         const input = document.getElementById('userInput');
@@ -142,31 +115,32 @@ curl \
         userDiv.className = 'msg user-msg';
         userDiv.textContent = userText;
         chatBox.appendChild(userDiv);
-        input.value = "";
+        input.value = '';
         chatBox.scrollTop = chatBox.scrollHeight;
 
         // Display "Thinking..." indicator
         const aiDiv = document.createElement('div');
         aiDiv.className = 'msg ai-msg';
-        aiDiv.textContent = "JARVIS is thinking...";
+        aiDiv.textContent = 'JARVIS is thinking...';
         chatBox.appendChild(aiDiv);
         chatBox.scrollTop = chatBox.scrollHeight;
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: userText }] }]
                 })
             });
 
             const data = await response.json();
-            const aiReply = data.candidates[0].content.parts[0].text;
+            const aiReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't get a response.";
             aiDiv.textContent = aiReply;
         } catch (error) {
             aiDiv.textContent = "Error connecting to AI. Please check your API key.";
         }
+
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
