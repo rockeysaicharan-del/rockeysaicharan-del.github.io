@@ -130,7 +130,7 @@
     </div>
 
     <script>
-        const API_KEY = "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"; 
+        const API_KEY = "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"; 
 
         async function sendMessage() {
             const input = document.getElementById('userInput');
@@ -162,7 +162,7 @@
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        model: "llama-3.3-70b-versatile",
+                        model: "llama3-8b-8192",
                         messages: [
                             { role: "system", content: "You are JARVIS, a smart, polite, and helpful AI assistant." },
                             { role: "user", content: userText }
