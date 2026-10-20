@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.A.R.V.I.S. AI - Live Voice, Image & Video Gen</title>
+    <title>J.A.R.V.I.S. AI - 100% Free Multi-Modal HUD</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,12 +17,7 @@
             --text-color: #e0f7fc;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Rajdhani', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; }
 
         body {
             background-color: var(--bg-main);
@@ -41,287 +36,83 @@
         }
 
         .hud-card {
-            width: 95%;
-            max-width: 500px;
-            height: 90vh;
-            max-height: 780px;
-            background: var(--card-bg);
-            border: 1.5px solid var(--border-cyan);
-            border-radius: 20px;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(255, 119, 0, 0.1);
-            backdrop-filter: blur(14px);
-            display: flex;
-            position: relative;
-            overflow: hidden;
+            width: 95%; max-width: 500px; height: 90vh; max-height: 780px;
+            background: var(--card-bg); border: 1.5px solid var(--border-cyan);
+            border-radius: 20px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(255, 119, 0, 0.1);
+            backdrop-filter: blur(14px); display: flex; position: relative; overflow: hidden;
         }
 
         .sidebar {
-            position: absolute;
-            top: 0;
-            left: -270px;
-            width: 270px;
-            height: 100%;
-            background: rgba(5, 12, 22, 0.96);
-            border-right: 1px solid var(--border-orange);
-            transition: left 0.3s ease;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
+            position: absolute; top: 0; left: -270px; width: 270px; height: 100%;
+            background: rgba(5, 12, 22, 0.96); border-right: 1px solid var(--border-orange);
+            transition: left 0.3s ease; z-index: 10; display: flex; flex-direction: column; padding: 15px;
             box-shadow: 10px 0 20px rgba(0, 0, 0, 0.5);
         }
 
-        .sidebar.open {
-            left: 0;
-        }
+        .sidebar.open { left: 0; }
 
         .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--border-orange);
-            padding-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; border-bottom: 1px solid var(--border-orange); padding-bottom: 10px;
         }
 
         .new-chat-btn {
-            background: var(--orange-dim);
-            border: 1px solid var(--orange-glow);
-            color: var(--orange-glow);
-            padding: 10px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.8rem;
-            width: 100%;
-            text-align: center;
-            transition: 0.3s;
-            font-weight: 600;
+            background: var(--orange-dim); border: 1px solid var(--orange-glow); color: var(--orange-glow);
+            padding: 10px 12px; border-radius: 8px; cursor: pointer; font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem; width: 100%; text-align: center; transition: 0.3s; font-weight: 600;
         }
 
-        .new-chat-btn:hover {
-            background: var(--orange-glow);
-            color: #000;
-            box-shadow: 0 0 12px var(--orange-glow);
-        }
+        .new-chat-btn:hover { background: var(--orange-glow); color: #000; box-shadow: 0 0 12px var(--orange-glow); }
 
-        .history-list {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
-        }
+        .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 
         .history-item {
-            padding: 10px;
-            background: rgba(0, 243, 255, 0.04);
-            border: 1px solid rgba(0, 243, 255, 0.15);
-            border-radius: 6px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            transition: 0.2s;
+            padding: 10px; background: rgba(0, 243, 255, 0.04); border: 1px solid rgba(0, 243, 255, 0.15);
+            border-radius: 6px; font-size: 0.9rem; cursor: pointer; white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; transition: 0.2s;
         }
 
-        .history-item:hover {
-            background: rgba(255, 119, 0, 0.15);
-            border-color: var(--orange-glow);
-            color: #fff;
-        }
+        .history-item:hover { background: rgba(255, 119, 0, 0.15); border-color: var(--orange-glow); color: #fff; }
 
-        .chat-main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
-        }
+        .chat-main { flex: 1; display: flex; flex-direction: column; height: 100%; width: 100%; }
 
         .hud-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-cyan);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 243, 255, 0.02);
+            padding: 15px 20px; border-bottom: 1px solid var(--border-cyan); display: flex;
+            justify-content: space-between; align-items: center; background: rgba(0, 243, 255, 0.02);
         }
 
-        .menu-btn {
-            background: transparent;
-            border: none;
-            color: var(--orange-glow);
-            font-size: 1.4rem;
-            cursor: pointer;
-            margin-right: 12px;
-            transition: 0.2s;
-        }
+        .menu-btn { background: transparent; border: none; color: var(--orange-glow); font-size: 1.4rem; cursor: pointer; margin-right: 12px; }
 
-        .menu-btn:hover {
-            color: var(--cyan-glow);
-        }
+        .hud-title { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--cyan-glow); letter-spacing: 2px; }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
+        .hud-status { font-size: 0.75rem; color: var(--orange-glow); display: flex; align-items: center; gap: 6px; font-family: 'Orbitron', sans-serif; }
 
-        .hud-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: var(--cyan-glow);
-            letter-spacing: 2px;
-            text-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
-        }
+        .status-dot { width: 7px; height: 7px; background-color: var(--orange-glow); border-radius: 50%; animation: pulse 2s infinite; }
 
-        .hud-status {
-            font-size: 0.75rem;
-            color: var(--orange-glow);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-family: 'Orbitron', sans-serif;
-        }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-        .status-dot {
-            width: 7px;
-            height: 7px;
-            background-color: var(--orange-glow);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--orange-glow);
-            animation: pulse 2s infinite;
-        }
+        .chat-feed { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
-        }
+        .msg { max-width: 88%; padding: 11px 15px; border-radius: 12px; font-size: 0.95rem; line-height: 1.4; }
 
-        .chat-feed {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        .msg.bot { align-self: flex-start; background: rgba(0, 243, 255, 0.08); border: 1px solid rgba(0, 243, 255, 0.3); color: #fff; border-top-left-radius: 2px; }
 
-        .chat-feed::-webkit-scrollbar {
-            width: 4px;
-        }
-        .chat-feed::-webkit-scrollbar-thumb {
-            background: var(--border-orange);
-            border-radius: 4px;
-        }
+        .msg.user { align-self: flex-end; background: var(--orange-dim); border: 1px solid var(--border-orange); color: #fff; border-top-right-radius: 2px; }
 
-        .msg {
-            max-width: 88%;
-            padding: 11px 15px;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            animation: fadeIn 0.3s ease-in-out;
-        }
+        .gen-media { width: 100%; max-width: 320px; border-radius: 10px; border: 1px solid var(--cyan-glow); margin-top: 8px; box-shadow: 0 0 15px rgba(0, 243, 255, 0.3); }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .input-panel { padding: 12px 15px; border-top: 1px solid var(--border-cyan); display: flex; align-items: center; gap: 8px; background: rgba(0, 0, 0, 0.3); }
 
-        .msg.bot {
-            align-self: flex-start;
-            background: rgba(0, 243, 255, 0.08);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            color: #fff;
-            border-top-left-radius: 2px;
-        }
+        .mic-btn { width: 40px; height: 40px; border-radius: 50%; background: rgba(0, 243, 255, 0.1); border: 1px solid var(--cyan-glow); color: var(--cyan-glow); font-size: 1rem; cursor: pointer; }
 
-        .msg.user {
-            align-self: flex-end;
-            background: var(--orange-dim);
-            border: 1px solid var(--border-orange);
-            color: #fff;
-            border-top-right-radius: 2px;
-        }
+        .input-field { flex: 1; background: rgba(0, 243, 255, 0.04); border: 1px solid var(--border-cyan); padding: 10px 14px; border-radius: 18px; color: #fff; font-size: 0.9rem; outline: none; }
 
-        .gen-media {
-            width: 100%;
-            max-width: 320px;
-            border-radius: 10px;
-            border: 1px solid var(--cyan-glow);
-            margin-top: 8px;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
-        }
-
-        .input-panel {
-            padding: 12px 15px;
-            border-top: 1px solid var(--border-cyan);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .mic-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(0, 243, 255, 0.1);
-            border: 1px solid var(--cyan-glow);
-            color: var(--cyan-glow);
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .mic-btn.listening {
-            border-color: #ff0055;
-            color: #ff0055;
-            background: rgba(255, 0, 85, 0.2);
-            animation: pulse-red 1.2s infinite;
-        }
-
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.7); }
-            70% { box-shadow: 0 0 0 8px rgba(255, 0, 85, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); }
-        }
-
-        .input-field {
-            flex: 1;
-            background: rgba(0, 243, 255, 0.04);
-            border: 1px solid var(--border-cyan);
-            padding: 10px 14px;
-            border-radius: 18px;
-            color: #fff;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        .send-btn {
-            background: var(--orange-dim);
-            border: 1px solid var(--orange-glow);
-            color: var(--orange-glow);
-            padding: 8px 16px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
+        .send-btn { background: var(--orange-dim); border: 1px solid var(--orange-glow); color: var(--orange-glow); padding: 8px 16px; border-radius: 16px; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div class="hud-card">
-        <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <span style="font-family:'Orbitron'; font-size:0.9rem; color:var(--orange-glow);">SYSTEM MEMORY</span>
@@ -331,10 +122,9 @@
             <div class="history-list" id="historyList"></div>
         </div>
 
-        <!-- Main Chat -->
         <div class="chat-main">
             <div class="hud-header">
-                <div class="header-left">
+                <div style="display:flex; align-items:center;">
                     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
                     <div class="hud-title">J.A.R.V.I.S.</div>
                 </div>
@@ -347,7 +137,7 @@
             <div class="chat-feed" id="chatFeed"></div>
 
             <div class="input-panel">
-                <button class="mic-btn" id="micBtn" title="Voice Input">🎙️</button>
+                <button class="mic-btn" id="micBtn">🎙️</button>
                 <input type="text" id="userInput" class="input-field" placeholder="Chat, or generate image/video..." onkeydown="if(event.key==='Enter') sendDirective()">
                 <button class="send-btn" onclick="sendDirective()">SEND</button>
             </div>
@@ -355,7 +145,8 @@
     </div>
 
     <script>
-        const API_KEY = "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";
+        const GROQ_API_KEY = "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";
+        const HF_API_KEY = "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";
         const MODEL_NAME = "openai/gpt-oss-20b";
 
         const chatFeed = document.getElementById("chatFeed");
@@ -365,16 +156,12 @@
         const sidebar = document.getElementById("sidebar");
         const historyList = document.getElementById("historyList");
 
-        let sessions = JSON.parse(localStorage.getItem("jarvis_media_sessions")) || [
-            { id: 1, title: "Media Protocol", messages: [{ role: "assistant", content: "Greetings, Boss. Ask me to chat, generate an image, or create a video!" }] }
+        let sessions = JSON.parse(localStorage.getItem("jarvis_free_sessions")) || [
+            { id: 1, title: "Protocol 1.0", messages: [{ role: "assistant", content: "Greetings, Boss. Ask me to chat, generate an image, or create a video!" }] }
         ];
         let currentSessionId = sessions[0].id;
-        let isLiveActive = false;
 
-        function toggleSidebar() {
-            sidebar.classList.toggle("open");
-            renderHistory();
-        }
+        function toggleSidebar() { sidebar.classList.toggle("open"); renderHistory(); }
 
         function renderHistory() {
             historyList.innerHTML = "";
@@ -382,31 +169,19 @@
                 const div = document.createElement("div");
                 div.className = "history-item";
                 div.innerText = session.title;
-                div.onclick = () => {
-                    currentSessionId = session.id;
-                    renderChat();
-                    toggleSidebar();
-                };
+                div.onclick = () => { currentSessionId = session.id; renderChat(); toggleSidebar(); };
                 historyList.appendChild(div);
             });
         }
 
         function startNewChat() {
-            const newSession = {
-                id: Date.now(),
-                title: "New Protocol",
-                messages: [{ role: "assistant", content: "New protocol initialized. Standing by, Boss." }]
-            };
+            const newSession = { id: Date.now(), title: "New Protocol", messages: [{ role: "assistant", content: "Standing by for new directives, Boss." }] };
             sessions.unshift(newSession);
             currentSessionId = newSession.id;
-            saveSessions();
-            renderChat();
-            toggleSidebar();
+            saveSessions(); renderChat(); toggleSidebar();
         }
 
-        function getCurrentSession() {
-            return sessions.find(s => s.id === currentSessionId) || sessions[0];
-        }
+        function getCurrentSession() { return sessions.find(s => s.id === currentSessionId) || sessions[0]; }
 
         function renderChat() {
             chatFeed.innerHTML = "";
@@ -414,73 +189,40 @@
             session.messages.forEach(msg => {
                 const div = document.createElement("div");
                 div.className = `msg ${msg.role === 'user' ? 'user' : 'bot'}`;
-                
                 if (msg.type === "image") {
-                    div.innerHTML = `<div>${msg.content}</div><img src="${msg.mediaUrl}" class="gen-media" alt="Generated Image" onload="scrollFeed()">`;
+                    div.innerHTML = `<div>${msg.content}</div><img src="${msg.mediaUrl}" class="gen-media" alt="Generated Image">`;
                 } else if (msg.type === "video") {
                     div.innerHTML = `<div>${msg.content}</div><video src="${msg.mediaUrl}" class="gen-media" controls autoplay loop></video>`;
                 } else {
                     div.innerText = msg.content;
                 }
-
                 chatFeed.appendChild(div);
             });
-            scrollFeed();
-        }
-
-        function scrollFeed() {
             chatFeed.scrollTop = chatFeed.scrollHeight;
         }
 
-        function saveSessions() {
-            localStorage.setItem("jarvis_media_sessions", JSON.stringify(sessions));
+        function saveSessions() { localStorage.setItem("jarvis_free_sessions", JSON.stringify(sessions)); }
+
+        // Free Hugging Face Image Generation (FLUX.1-dev)
+        async function generateFreeImage(prompt) {
+            const response = await fetch("https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev", {
+                headers: { Authorization: `Bearer ${HF_API_KEY}`, "Content-Type": "application/json" },
+                method: "POST",
+                body: JSON.stringify({ inputs: `${prompt}, cinematic Marvel visual style, highly detailed, 8k` }),
+            });
+            const blob = await response.blob();
+            return URL.createObjectURL(blob);
         }
 
-        function speakText(text, callback) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = 1.0;
-                utterance.pitch = 0.85;
-
-                utterance.onstart = () => { statusText.innerText = "JARVIS SPEAKING..."; };
-                utterance.onend = () => {
-                    statusText.innerText = "ONLINE";
-                    if (callback) callback();
-                };
-
-                window.speechSynthesis.speak(utterance);
-            } else {
-                if (callback) callback();
-            }
-        }
-
-        // Voice Input
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition = null;
-
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.lang = 'en-US';
-
-            recognition.onstart = () => { micBtn.classList.add("listening"); statusText.innerText = "LISTENING..."; };
-            recognition.onend = () => {
-                micBtn.classList.remove("listening");
-                if (!isLiveActive) statusText.innerText = "ONLINE";
-            };
-            recognition.onresult = (e) => {
-                userInput.value = e.results[0][0].transcript;
-                sendDirective();
-            };
-
-            micBtn.onclick = () => {
-                isLiveActive = !isLiveActive;
-                if (isLiveActive) recognition.start();
-                else recognition.stop();
-            };
-        } else {
-            micBtn.style.display = "none";
+        // Free Hugging Face Video Generation
+        async function generateFreeVideo(prompt) {
+            const response = await fetch("https://api-inference.huggingface.co/models/damo-vilab/text-to-video-ms-1.7b", {
+                headers: { Authorization: `Bearer ${HF_API_KEY}`, "Content-Type": "application/json" },
+                method: "POST",
+                body: JSON.stringify({ inputs: prompt }),
+            });
+            const blob = await response.blob();
+            return URL.createObjectURL(blob);
         }
 
         async function sendDirective() {
@@ -488,98 +230,55 @@
             if (!text) return;
 
             const session = getCurrentSession();
-            if (session.messages.length === 1 && session.title === "New Protocol") {
-                session.title = text.length > 20 ? text.substring(0, 20) + "..." : text;
-            }
-
             session.messages.push({ role: "user", content: text });
-            saveSessions();
-            renderChat();
-
+            saveSessions(); renderChat();
             userInput.value = "";
-            const lowerText = text.toLowerCase();
 
+            const lowerText = text.toLowerCase();
             const isVideoRequest = lowerText.includes("video") || lowerText.includes("వీడియో");
-            const isImageRequest = !isVideoRequest && (lowerText.includes("image") || lowerText.includes("photo") || lowerText.includes("picture") || lowerText.includes("draw") || lowerText.includes("బొమ్మ") || lowerText.includes("generate") || lowerText.includes("create"));
+            const isImageRequest = !isVideoRequest && (lowerText.includes("image") || lowerText.includes("photo") || lowerText.includes("draw") || lowerText.includes("బొమ్మ") || lowerText.includes("generate") || lowerText.includes("create"));
 
             if (isVideoRequest) {
-                statusText.innerText = "GENERATING VIDEO...";
-                let cleanPrompt = text.replace(/generate|create|a|video|clip|of|వీడియో/gi, "").trim();
-                if(!cleanPrompt) cleanPrompt = text;
-                
-                const videoUrl = `https://pollinations.ai/p/${encodeURIComponent(cleanPrompt)}?width=1024&height=576&model=video&seed=${Math.floor(Math.random() * 1000)}`;
-
-                const replyText = "Here is the video output generated for your directive, Boss.";
-                session.messages.push({
-                    role: "assistant",
-                    type: "video",
-                    content: replyText,
-                    mediaUrl: videoUrl
-                });
-
-                saveSessions();
-                renderChat();
-                statusText.innerText = "ONLINE";
-                speakText(replyText);
+                statusText.innerText = "GENERATING FREE VIDEO...";
+                try {
+                    let cleanPrompt = text.replace(/generate|create|a|video|clip|of|వీడియో/gi, "").trim();
+                    const videoBlobUrl = await generateFreeVideo(cleanPrompt || text);
+                    session.messages.push({ role: "assistant", type: "video", content: "Free video output generated, Boss.", mediaUrl: videoBlobUrl });
+                } catch(e) {
+                    session.messages.push({ role: "assistant", content: "Video server is busy right now, Boss. Please try again in a moment." });
+                }
+                saveSessions(); renderChat(); statusText.innerText = "ONLINE";
 
             } else if (isImageRequest) {
-                statusText.innerText = "GENERATING IMAGE...";
-                let cleanPrompt = text.replace(/generate|create|an|a|image|photo|picture|of|draw|బొమ్మ/gi, "").trim();
-                if(!cleanPrompt) cleanPrompt = text;
-
-                // Flux model guarantees high quality complex image rendering
-                const imgUrl = `https://pollinations.ai/p/${encodeURIComponent(cleanPrompt)}?width=1024&height=1024&model=flux&seed=${Math.floor(Math.random() * 1000)}&nologo=true`;
-
-                const replyText = "Visual image generated successfully, Boss.";
-                session.messages.push({
-                    role: "assistant",
-                    type: "image",
-                    content: replyText,
-                    mediaUrl: imgUrl
-                });
-
-                saveSessions();
-                renderChat();
-                statusText.innerText = "ONLINE";
-                speakText(replyText);
+                statusText.innerText = "GENERATING FLUX IMAGE...";
+                try {
+                    let cleanPrompt = text.replace(/generate|create|an|a|image|photo|picture|of|draw|బొమ్మ/gi, "").trim();
+                    const imgBlobUrl = await generateFreeImage(cleanPrompt || text);
+                    session.messages.push({ role: "assistant", type: "image", content: "High-fidelity FLUX image generated, Boss.", mediaUrl: imgBlobUrl });
+                } catch(e) {
+                    session.messages.push({ role: "assistant", content: "Image generation error. Check your Hugging Face API key." });
+                }
+                saveSessions(); renderChat(); statusText.innerText = "ONLINE";
 
             } else {
                 statusText.innerText = "PROCESSING...";
-
                 try {
-                    const apiMessages = session.messages
-                        .filter(m => !m.type)
-                        .map(m => ({ role: m.role, content: m.content }));
-
+                    const apiMessages = session.messages.filter(m => !m.type).map(m => ({ role: m.role, content: m.content }));
                     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                         method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${API_KEY}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            model: MODEL_NAME,
-                            messages: apiMessages
-                        })
+                        headers: { "Authorization": `Bearer ${GROQ_API_KEY}`, "Content-Type": "application/json" },
+                        body: JSON.stringify({ model: MODEL_NAME, messages: apiMessages })
                     });
-
                     const data = await res.json();
                     if (data.choices && data.choices[0]) {
-                        const reply = data.choices[0].message.content;
-                        session.messages.push({ role: "assistant", content: reply });
-                        saveSessions();
-                        renderChat();
-                        speakText(reply);
+                        session.messages.push({ role: "assistant", content: data.choices[0].message.content });
+                        saveSessions(); renderChat();
                     }
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    statusText.innerText = "ONLINE";
-                }
+                } catch (err) { console.error(err); }
+                finally { statusText.innerText = "ONLINE"; }
             }
         }
 
-        // Initial Load
         renderChat();
     </script>
 </body>
