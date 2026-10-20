@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS AI Interface</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <title>J.A.R.V.I.S. AI - Cyan & Orange HUD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-glow: #00f3ff;
-            --secondary-glow: #0066ff;
-            --bg-dark: #030813;
-            --panel-bg: rgba(6, 18, 36, 0.75);
-            --border-glow: rgba(0, 243, 255, 0.3);
-            --text-main: #e0f7fc;
+            --cyan-glow: #00f3ff;
+            --orange-glow: #ff7700;
+            --orange-dim: rgba(255, 119, 0, 0.2);
+            --bg-main: #050a12;
+            --card-bg: rgba(10, 20, 32, 0.88);
+            --border-cyan: rgba(0, 243, 255, 0.35);
+            --border-orange: rgba(255, 119, 0, 0.4);
+            --text-color: #e0f7fc;
         }
 
         * {
@@ -23,214 +25,347 @@
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
+            background-color: var(--bg-main);
+            color: var(--text-color);
             height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             background-image: 
-                radial-gradient(circle at 50% 50%, rgba(0, 102, 255, 0.1) 0%, transparent 60%),
+                radial-gradient(circle at 50% 50%, rgba(255, 119, 0, 0.08) 0%, transparent 65%),
+                radial-gradient(circle at 20% 20%, rgba(0, 243, 255, 0.08) 0%, transparent 50%),
                 linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-            background-size: 100% 100%, 30px 30px, 30px 30px;
+                linear-gradient(90deg, rgba(255, 119, 0, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 25px 25px, 25px 25px;
         }
 
-        .hud-container {
+        /* Main HUD Card */
+        .hud-card {
             width: 95%;
-            max-width: 900px;
+            max-width: 500px;
             height: 90vh;
-            background: var(--panel-bg);
-            border: 1px solid var(--border-glow);
-            border-radius: 16px;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(0, 243, 255, 0.05);
-            backdrop-filter: blur(12px);
+            max-height: 780px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-cyan);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(255, 119, 0, 0.1);
+            backdrop-filter: blur(14px);
             display: flex;
-            flex-direction: column;
             position: relative;
             overflow: hidden;
         }
 
+        /* Sidebar for Chat History */
+        .sidebar {
+            position: absolute;
+            top: 0;
+            left: -270px;
+            width: 270px;
+            height: 100%;
+            background: rgba(5, 12, 22, 0.96);
+            border-right: 1px solid var(--border-orange);
+            transition: left 0.3s ease;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            box-shadow: 10px 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-orange);
+            padding-bottom: 10px;
+        }
+
+        .new-chat-btn {
+            background: var(--orange-dim);
+            border: 1px solid var(--orange-glow);
+            color: var(--orange-glow);
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            width: 100%;
+            text-align: center;
+            transition: 0.3s;
+            font-weight: 600;
+        }
+
+        .new-chat-btn:hover {
+            background: var(--orange-glow);
+            color: #000;
+            box-shadow: 0 0 12px var(--orange-glow);
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .history-item {
+            padding: 10px;
+            background: rgba(0, 243, 255, 0.04);
+            border: 1px solid rgba(0, 243, 255, 0.15);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: 0.2s;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 119, 0, 0.15);
+            border-color: var(--orange-glow);
+            color: #fff;
+        }
+
+        /* Main Chat Area */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
         .hud-header {
-            padding: 15px 25px;
-            border-bottom: 1px solid var(--border-glow);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-cyan);
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: rgba(0, 243, 255, 0.02);
         }
 
+        .menu-btn {
+            background: transparent;
+            border: none;
+            color: var(--orange-glow);
+            font-size: 1.4rem;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: 0.2s;
+        }
+
+        .menu-btn:hover {
+            color: var(--cyan-glow);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
         .hud-title {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.5rem;
-            color: var(--primary-glow);
-            text-shadow: 0 0 10px var(--primary-glow);
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--cyan-glow);
             letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(0, 243, 255, 0.5);
         }
 
         .hud-status {
+            font-size: 0.75rem;
+            color: var(--orange-glow);
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            color: #00f3ff;
+            gap: 6px;
+            font-family: 'Orbitron', sans-serif;
         }
 
         .status-dot {
-            width: 10px;
-            height: 10px;
-            background-color: var(--primary-glow);
+            width: 7px;
+            height: 7px;
+            background-color: var(--orange-glow);
             border-radius: 50%;
-            box-shadow: 0 0 10px var(--primary-glow);
+            box-shadow: 0 0 8px var(--orange-glow);
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% { opacity: 0.4; }
+            0%, 100% { opacity: 0.4; }
             50% { opacity: 1; }
-            100% { opacity: 0.4; }
         }
 
-        .chat-area {
+        .chat-feed {
             flex: 1;
-            padding: 20px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
-        .chat-area::-webkit-scrollbar {
-            width: 6px;
+        .chat-feed::-webkit-scrollbar {
+            width: 4px;
         }
-        .chat-area::-webkit-scrollbar-thumb {
-            background: var(--border-glow);
-            border-radius: 3px;
+        .chat-feed::-webkit-scrollbar-thumb {
+            background: var(--border-orange);
+            border-radius: 4px;
         }
 
-        .message {
-            max-width: 80%;
-            padding: 12px 18px;
-            border-radius: 10px;
-            font-size: 1.05rem;
+        .msg {
+            max-width: 85%;
+            padding: 11px 15px;
+            border-radius: 12px;
+            font-size: 0.95rem;
             line-height: 1.4;
             animation: fadeIn 0.3s ease-in-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .message.bot {
+        .msg.bot {
             align-self: flex-start;
             background: rgba(0, 243, 255, 0.08);
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            color: var(--text-main);
-            border-top-left-radius: 0;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: #fff;
+            border-top-left-radius: 2px;
             box-shadow: 0 0 10px rgba(0, 243, 255, 0.05);
         }
 
-        .message.user {
+        .msg.user {
             align-self: flex-end;
-            background: rgba(0, 102, 255, 0.2);
-            border: 1px solid rgba(0, 102, 255, 0.4);
+            background: var(--orange-dim);
+            border: 1px solid var(--border-orange);
             color: #fff;
-            border-top-right-radius: 0;
+            border-top-right-radius: 2px;
+            box-shadow: 0 0 10px rgba(255, 119, 0, 0.1);
         }
 
         .input-panel {
-            padding: 15px 20px;
-            border-top: 1px solid var(--border-glow);
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .input-field {
-            flex: 1;
-            background: rgba(0, 243, 255, 0.05);
-            border: 1px solid var(--border-glow);
-            padding: 12px 16px;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1rem;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .input-field:focus {
-            border-color: var(--primary-glow);
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
-        }
-
-        .btn {
-            background: rgba(0, 243, 255, 0.15);
-            border: 1px solid var(--primary-glow);
-            color: var(--primary-glow);
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-family: 'Orbitron', sans-serif;
-            transition: 0.3s;
+            padding: 12px 15px;
+            border-top: 1px solid var(--border-cyan);
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .btn:hover {
-            background: var(--primary-glow);
-            color: #000;
-            box-shadow: 0 0 15px var(--primary-glow);
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
         }
 
         .mic-btn {
-            padding: 12px 16px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            width: 48px;
-            height: 48px;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--cyan-glow);
+            color: var(--cyan-glow);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .mic-btn:hover {
+            background: var(--cyan-glow);
+            color: #000;
+            box-shadow: 0 0 12px var(--cyan-glow);
         }
 
         .mic-btn.listening {
-            background: rgba(255, 0, 85, 0.3);
             border-color: #ff0055;
             color: #ff0055;
+            background: rgba(255, 0, 85, 0.2);
             animation: pulse-red 1.2s infinite;
         }
 
         @keyframes pulse-red {
             0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.7); }
-            70% { box-shadow: 0 0 0 12px rgba(255, 0, 85, 0); }
+            70% { box-shadow: 0 0 0 8px rgba(255, 0, 85, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); }
+        }
+
+        .input-field {
+            flex: 1;
+            background: rgba(0, 243, 255, 0.04);
+            border: 1px solid var(--border-cyan);
+            padding: 10px 14px;
+            border-radius: 18px;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: var(--orange-glow);
+            box-shadow: 0 0 10px rgba(255, 119, 0, 0.25);
+        }
+
+        .send-btn {
+            background: var(--orange-dim);
+            border: 1px solid var(--orange-glow);
+            color: var(--orange-glow);
+            padding: 8px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .send-btn:hover {
+            background: var(--orange-glow);
+            color: #000;
+            box-shadow: 0 0 12px var(--orange-glow);
         }
     </style>
 </head>
 <body>
 
-    <div class="hud-container">
-        <div class="hud-header">
-            <div class="hud-title">J.A.R.V.I.S.</div>
-            <div class="hud-status">
-                <div class="status-dot"></div>
-                <span id="statusText">ONLINE</span>
+    <div class="hud-card">
+        <!-- Sidebar for Chat History -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span style="font-family:'Orbitron'; font-size:0.9rem; color:var(--orange-glow);">SYSTEM MEMORY</span>
+                <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--cyan-glow); font-size:1.2rem; cursor:pointer;">✕</button>
             </div>
+            <button class="new-chat-btn" onclick="startNewChat()">+ NEW PROTOCOL</button>
+            <div class="history-list" id="historyList"></div>
         </div>
 
-        <div class="chat-area" id="chatArea">
-            <div class="message bot">
-                Greetings, Boss. Voice systems online. How can I assist you today?
+        <!-- Main Chat Window -->
+        <div class="chat-main">
+            <div class="hud-header">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+                    <div class="hud-title">J.A.R.V.I.S.</div>
+                </div>
+                <div class="hud-status">
+                    <div class="status-dot"></div>
+                    <span id="status">ONLINE</span>
+                </div>
             </div>
-        </div>
 
-        <div class="input-panel">
-            <button class="btn mic-btn" id="micBtn" title="Voice Input">🎙️</button>
-            <input type="text" id="userInput" class="input-field" placeholder="Speak or type a command..." onkeydown="if(event.key==='Enter') sendMessage()">
-            <button class="btn" onclick="sendMessage()">SEND</button>
+            <div class="chat-feed" id="chatFeed"></div>
+
+            <div class="input-panel">
+                <button class="mic-btn" id="micBtn" title="Voice Input">🎙️</button>
+                <input type="text" id="userInput" class="input-field" placeholder="State your directive..." onkeydown="if(event.key==='Enter') sendDirective()">
+                <button class="send-btn" onclick="sendDirective()">SEND</button>
+            </div>
         </div>
     </div>
 
@@ -238,70 +373,117 @@
         const API_KEY = "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";
         const MODEL_NAME = "openai/gpt-oss-20b";
 
-        const chatArea = document.getElementById("chatArea");
+        const chatFeed = document.getElementById("chatFeed");
         const userInput = document.getElementById("userInput");
         const micBtn = document.getElementById("micBtn");
-        const statusText = document.getElementById("statusText");
+        const statusText = document.getElementById("status");
+        const sidebar = document.getElementById("sidebar");
+        const historyList = document.getElementById("historyList");
 
-        // Speech Recognition Setup
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition = null;
-        let isListening = false;
+        let sessions = JSON.parse(localStorage.getItem("jarvis_cyan_orange_sessions")) || [
+            { id: 1, title: "Initial Protocol", messages: [{ role: "assistant", content: "Greetings, Boss. All sub-routines operational. How may I assist you?" }] }
+        ];
+        let currentSessionId = sessions[0].id;
 
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = 'en-US'; // Change to 'te-IN' for Telugu speech support
-
-            recognition.onstart = () => {
-                isListening = true;
-                micBtn.classList.add("listening");
-                statusText.innerText = "LISTENING...";
-            };
-
-            recognition.onend = () => {
-                isListening = false;
-                micBtn.classList.remove("listening");
-                statusText.innerText = "ONLINE";
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                userInput.value = transcript;
-                sendMessage();
-            };
-
-            recognition.onerror = (event) => {
-                console.error("Speech Recognition Error:", event.error);
-                isListening = false;
-                micBtn.classList.remove("listening");
-                statusText.innerText = "ONLINE";
-            };
-
-            micBtn.addEventListener("click", () => {
-                if (isListening) {
-                    recognition.stop();
-                } else {
-                    recognition.start();
-                }
-            });
-        } else {
-            micBtn.style.display = "none";
-            console.warn("Speech Recognition not supported in this browser.");
+        function toggleSidebar() {
+            sidebar.classList.toggle("open");
+            renderHistory();
         }
 
-        async function sendMessage() {
+        function renderHistory() {
+            historyList.innerHTML = "";
+            sessions.forEach(session => {
+                const div = document.createElement("div");
+                div.className = "history-item";
+                div.innerText = session.title;
+                div.onclick = () => {
+                    currentSessionId = session.id;
+                    renderChat();
+                    toggleSidebar();
+                };
+                historyList.appendChild(div);
+            });
+        }
+
+        function startNewChat() {
+            const newSession = {
+                id: Date.now(),
+                title: "New Protocol",
+                messages: [{ role: "assistant", content: "New session initialized, Boss. Standing by for commands." }]
+            };
+            sessions.unshift(newSession);
+            currentSessionId = newSession.id;
+            saveSessions();
+            renderChat();
+            toggleSidebar();
+        }
+
+        function getCurrentSession() {
+            return sessions.find(s => s.id === currentSessionId) || sessions[0];
+        }
+
+        function renderChat() {
+            chatFeed.innerHTML = "";
+            const session = getCurrentSession();
+            session.messages.forEach(msg => {
+                const div = document.createElement("div");
+                div.className = `msg ${msg.role === 'user' ? 'user' : 'bot'}`;
+                div.innerText = msg.content;
+                chatFeed.appendChild(div);
+            });
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+        }
+
+        function saveSessions() {
+            localStorage.setItem("jarvis_cyan_orange_sessions", JSON.stringify(sessions));
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.pitch = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Speech Recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => { micBtn.classList.add("listening"); statusText.innerText = "LISTENING..."; };
+            recognition.onend = () => { micBtn.classList.remove("listening"); statusText.innerText = "ONLINE"; };
+            recognition.onresult = (e) => { userInput.value = e.results[0][0].transcript; sendDirective(); };
+
+            micBtn.onclick = () => {
+                if (micBtn.classList.contains("listening")) recognition.stop();
+                else recognition.start();
+            };
+        } else {
+            micBtn.style.display = "none";
+        }
+
+        async function sendDirective() {
             const text = userInput.value.trim();
             if (!text) return;
 
-            appendMessage("user", text);
-            userInput.value = "";
+            const session = getCurrentSession();
+            if (session.messages.length === 1 && session.title === "New Protocol") {
+                session.title = text.length > 20 ? text.substring(0, 20) + "..." : text;
+            }
 
+            session.messages.push({ role: "user", content: text });
+            saveSessions();
+            renderChat();
+
+            userInput.value = "";
             statusText.innerText = "PROCESSING...";
 
             try {
-                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: {
                         "Authorization": `Bearer ${API_KEY}`,
@@ -309,30 +491,27 @@
                     },
                     body: JSON.stringify({
                         model: MODEL_NAME,
-                        messages: [{ role: "user", content: text }]
+                        messages: session.messages
                     })
                 });
 
-                const data = await response.json();
+                const data = await res.json();
                 if (data.choices && data.choices[0]) {
-                    appendMessage("bot", data.choices[0].message.content);
-                } else {
-                    appendMessage("bot", "API Error: Unable to fetch response.");
+                    const reply = data.choices[0].message.content;
+                    session.messages.push({ role: "assistant", content: reply });
+                    saveSessions();
+                    renderChat();
+                    speakText(reply);
                 }
             } catch (err) {
-                appendMessage("bot", "Connection Error. Please try again.");
+                console.error(err);
             } finally {
                 statusText.innerText = "ONLINE";
             }
         }
 
-        function appendMessage(sender, text) {
-            const msgDiv = document.createElement("div");
-            msgDiv.classList.add("message", sender);
-            msgDiv.innerText = text;
-            chatArea.appendChild(msgDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
+        // Initial Load
+        renderChat();
     </script>
 </body>
 </html>
