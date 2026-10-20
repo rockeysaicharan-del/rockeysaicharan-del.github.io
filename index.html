@@ -248,7 +248,6 @@
             border-top-right-radius: 2px;
         }
 
-        /* Generated Media Styling */
         .gen-media {
             width: 100%;
             max-width: 320px;
@@ -419,7 +418,7 @@
                 if (msg.type === "image") {
                     div.innerHTML = `<div>${msg.content}</div><img src="${msg.mediaUrl}" class="gen-media" alt="Generated Image" onload="scrollFeed()">`;
                 } else if (msg.type === "video") {
-                    div.innerHTML = `<div>${msg.content}</div><video src="${msg.mediaUrl}" class="gen-media" controls autoplay loop playlist></video>`;
+                    div.innerHTML = `<div>${msg.content}</div><video src="${msg.mediaUrl}" class="gen-media" controls autoplay loop></video>`;
                 } else {
                     div.innerText = msg.content;
                 }
@@ -500,17 +499,15 @@
             userInput.value = "";
             const lowerText = text.toLowerCase();
 
-            // Detect Video Request
-            const isVideoRequest = lowerText.includes("video") || lowerText.includes("clip") || lowerText.includes("వీడియో");
-            // Detect Image Request
-            const isImageRequest = !isVideoRequest && (lowerText.includes("image") || lowerText.includes("photo") || lowerText.includes("picture") || lowerText.includes("draw") || lowerText.includes("బొమ్మ"));
+            const isVideoRequest = lowerText.includes("video") || lowerText.includes("వీడియో");
+            const isImageRequest = !isVideoRequest && (lowerText.includes("image") || lowerText.includes("photo") || lowerText.includes("picture") || lowerText.includes("draw") || lowerText.includes("బొమ్మ") || lowerText.includes("generate") || lowerText.includes("create"));
 
             if (isVideoRequest) {
                 statusText.innerText = "GENERATING VIDEO...";
-                const cleanPrompt = encodeURIComponent(text.replace(/generate|create|a|video|clip|of|వీడియో/gi, "").trim());
+                let cleanPrompt = text.replace(/generate|create|a|video|clip|of|వీడియో/gi, "").trim();
+                if(!cleanPrompt) cleanPrompt = text;
                 
-                // Pollinations Video API Endpoint
-                const videoUrl = `https://pollinations.ai/p/${cleanPrompt}?width=1024&height=576&model=video&seed=${Math.floor(Math.random() * 1000)}`;
+                const videoUrl = `https://pollinations.ai/p/${encodeURIComponent(cleanPrompt)}?width=1024&height=576&model=video&seed=${Math.floor(Math.random() * 1000)}`;
 
                 const replyText = "Here is the video output generated for your directive, Boss.";
                 session.messages.push({
@@ -527,9 +524,11 @@
 
             } else if (isImageRequest) {
                 statusText.innerText = "GENERATING IMAGE...";
-                const cleanPrompt = encodeURIComponent(text.replace(/generate|create|an|image|photo|picture|of|draw|బొమ్మ/gi, "").trim());
-                
-                const imgUrl = `https://pollinations.ai/p/${cleanPrompt}?width=1024&height=1024&seed=${Math.floor(Math.random() * 1000)}&nologo=true`;
+                let cleanPrompt = text.replace(/generate|create|an|a|image|photo|picture|of|draw|బొమ్మ/gi, "").trim();
+                if(!cleanPrompt) cleanPrompt = text;
+
+                // Flux model guarantees high quality complex image rendering
+                const imgUrl = `https://pollinations.ai/p/${encodeURIComponent(cleanPrompt)}?width=1024&height=1024&model=flux&seed=${Math.floor(Math.random() * 1000)}&nologo=true`;
 
                 const replyText = "Visual image generated successfully, Boss.";
                 session.messages.push({
@@ -585,4 +584,3 @@
     </script>
 </body>
 </html>
-
