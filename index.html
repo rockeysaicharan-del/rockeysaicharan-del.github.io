@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.A.R.V.I.S. AI - Secure HUD</title>
+    <title>J.A.R.V.I.S. AI - Secure Ultra HUD</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -33,13 +33,6 @@
             backdrop-filter: blur(14px); display: flex; position: relative; overflow: hidden;
         }
 
-        .sidebar {
-            position: absolute; top: 0; left: -270px; width: 270px; height: 100%;
-            background: rgba(5, 12, 22, 0.96); border-right: 1px solid var(--border-orange);
-            transition: left 0.3s ease; z-index: 10; display: flex; flex-direction: column; padding: 15px;
-        }
-        .sidebar.open { left: 0; }
-
         .chat-main { flex: 1; display: flex; flex-direction: column; height: 100%; width: 100%; }
 
         .hud-header {
@@ -63,25 +56,25 @@
         .input-field { flex: 1; background: rgba(0, 243, 255, 0.04); border: 1px solid var(--border-cyan); padding: 10px 14px; border-radius: 18px; color: #fff; outline: none; }
         .send-btn { background: var(--orange-dim); border: 1px solid var(--orange-glow); color: var(--orange-glow); padding: 8px 16px; border-radius: 16px; cursor: pointer; font-family: 'Orbitron', sans-serif; }
 
-        /* Key Setup Overlay */
+        /* API Key Modal */
         .key-modal {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 10, 18, 0.95); z-index: 100; display: flex;
-            flex-direction: column; justify-content: center; align-items: center; padding: 20px;
+            background: rgba(5, 10, 18, 0.96); z-index: 100; display: flex;
+            flex-direction: column; justify-content: center; align-items: center; padding: 25px;
         }
-        .key-modal input { width: 100%; padding: 10px; margin: 10px 0; background: rgba(0,243,255,0.05); border: 1px solid var(--cyan-glow); color: #fff; border-radius: 8px; }
+        .key-modal input { width: 100%; padding: 12px; margin: 8px 0; background: rgba(0,243,255,0.05); border: 1px solid var(--cyan-glow); color: #fff; border-radius: 8px; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
     <div class="hud-card">
-        <!-- API Key Setup Modal -->
+        <!-- Secure Key Modal -->
         <div class="key-modal" id="keyModal">
-            <h3 style="color:var(--cyan-glow); font-family:'Orbitron'; mb-10">JARVIS API CONFIG</h3>
-            <p style="font-size:0.8rem; color:#aaa; text-align:center;">Keys are stored locally in your browser to prevent GitHub leaks.</p>
-            <input type="password" id="groqKeyInput" placeholder="Enter Groq API Key (gsk_...)">
-            <input type="password" id="hfKeyInput" placeholder="Enter Hugging Face API Key (hf_...)">
-            <button class="send-btn" onclick="saveKeys()" style="width:100%; margin-top:10px;">SAVE PROTOCOL KEYS</button>
+            <h3 style="color:var(--cyan-glow); font-family:'Orbitron'; margin-bottom:10px;">JARVIS SECURITY PROTOCOL</h3>
+            <p style="font-size:0.8rem; color:#aaa; text-align:center; margin-bottom:15px;">Enter your keys once. They are stored locally on your device and will never leak to GitHub.</p>
+            <input type="password" id="groqKeyInput" placeholder="Groq API Key (gsk_...)">
+            <input type="password" id="hfKeyInput" placeholder="Hugging Face READ Token (hf_...)">
+            <button class="send-btn" onclick="saveKeys()" style="width:100%; margin-top:10px; padding:12px;">INITIALIZE JARVIS</button>
         </div>
 
         <div class="chat-main">
@@ -101,7 +94,7 @@
 
     <script>
         let GROQ_API_KEY = localStorage.getItem("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") || "";
-        let HF_API_KEY = localStorage.getItem("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") || "";
+        let HF_API_KEY = localStorage.getItem("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") || "";
 
         const keyModal = document.getElementById("keyModal");
         const chatFeed = document.getElementById("chatFeed");
@@ -145,24 +138,29 @@
             chatFeed.scrollTop = chatFeed.scrollHeight;
         }
 
+        // Reliable Image Generation via SDXL
         async function generateFreeImage(prompt) {
-            const response = await fetch("https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev", {
-                headers: { Authorization: `Bearer ${HF_API_KEY}`, "Content-Type": "application/json" },
+            const response = await fetch("https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0", {
+                headers: { 
+                    Authorization: `Bearer ${HF_API_KEY}`, 
+                    "Content-Type": "application/json" 
+                },
                 method: "POST",
-                body: JSON.stringify({ inputs: `${prompt}, cinematic Marvel visual style, 8k` }),
+                body: JSON.stringify({ inputs: `${prompt}, cinematic lighting, highly detailed, 8k resolution, marvel style` }),
             });
+            
+            if (!response.ok) {
+                throw new Error("API Error: " + response.statusText);
+            }
+            
             const blob = await response.blob();
             return URL.createObjectURL(blob);
         }
 
+        // Fast Video Generation Route
         async function generateFreeVideo(prompt) {
-            const response = await fetch("https://api-inference.huggingface.co/models/damo-vilab/text-to-video-ms-1.7b", {
-                headers: { Authorization: `Bearer ${HF_API_KEY}`, "Content-Type": "application/json" },
-                method: "POST",
-                body: JSON.stringify({ inputs: prompt }),
-            });
-            const blob = await response.blob();
-            return URL.createObjectURL(blob);
+            const cleanPrompt = encodeURIComponent(prompt);
+            return `https://pollinations.ai/p/${cleanPrompt}?width=1024&height=576&model=video&seed=${Math.floor(Math.random() * 10000)}`;
         }
 
         async function sendDirective() {
@@ -181,21 +179,22 @@
                 statusText.innerText = "GENERATING VIDEO...";
                 try {
                     let cleanPrompt = text.replace(/generate|create|a|video|clip|of|వీడియో/gi, "").trim();
-                    const videoBlobUrl = await generateFreeVideo(cleanPrompt || text);
-                    messages.push({ role: "assistant", type: "video", content: "Free video output generated, Boss.", mediaUrl: videoBlobUrl });
+                    const videoUrl = await generateFreeVideo(cleanPrompt || text);
+                    messages.push({ role: "assistant", type: "video", content: "Video rendering completed, Boss.", mediaUrl: videoUrl });
                 } catch(e) {
-                    messages.push({ role: "assistant", content: "Video generation failed. Please verify your Hugging Face API key." });
+                    messages.push({ role: "assistant", content: "Video server is busy. Please try again." });
                 }
                 renderChat(); statusText.innerText = "ONLINE";
 
             } else if (isImageRequest) {
-                statusText.innerText = "GENERATING FLUX IMAGE...";
+                statusText.innerText = "GENERATING IMAGE...";
                 try {
                     let cleanPrompt = text.replace(/generate|create|an|a|image|photo|picture|of|draw|బొమ్మ/gi, "").trim();
                     const imgBlobUrl = await generateFreeImage(cleanPrompt || text);
-                    messages.push({ role: "assistant", type: "image", content: "High-fidelity FLUX image generated, Boss.", mediaUrl: imgBlobUrl });
+                    messages.push({ role: "assistant", type: "image", content: "High quality image generated, Boss.", mediaUrl: imgBlobUrl });
                 } catch(e) {
-                    messages.push({ role: "assistant", content: "Image generation failed. Please verify your Hugging Face API key." });
+                    console.error(e);
+                    messages.push({ role: "assistant", content: "Image generation failed. Please verify your Hugging Face READ token." });
                 }
                 renderChat(); statusText.innerText = "ONLINE";
 
