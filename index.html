@@ -1,576 +1,423 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.A.R.V.I.S. AI - Gemini Interface</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --cyan-glow: #00f3ff;
-            --orange-glow: #ff7700;
-            --orange-dim: rgba(255, 119, 0, 0.18);
-            --bg-main: #050a12;
-            --card-bg: rgba(10, 20, 32, 0.88);
-            --border-cyan: rgba(0, 243, 255, 0.35);
-            --border-orange: rgba(255, 119, 0, 0.4);
-            --text-color: #e0f7fc;
-
-            /* Gemini Pill UI Color Palette */
-            --gemini-bg: #1e1f22;
-            --gemini-hover: #2b2d31;
-            --gemini-placeholder: #9aa0a6;
-            --gemini-icon: #e3e3e3;
-            --gemini-blue-btn: #1b2e5a;
-            --gemini-blue-btn-hover: #27407a;
-            --gemini-blue-glow: rgba(37, 89, 219, 0.4);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-color);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background-image: radial-gradient(circle at 50% 50%, rgba(255, 119, 0, 0.08) 0%, transparent 65%),
-                              radial-gradient(circle at 20% 20%, rgba(0, 243, 255, 0.08) 0%, transparent 50%);
-        }
-
-        /* Main Container Card */
-        .hud-card {
-            width: 95%; max-width: 520px; height: 92vh; max-height: 820px;
-            background: var(--card-bg); border: 1.5px solid var(--border-cyan);
-            border-radius: 24px; box-shadow: 0 0 35px rgba(0, 243, 255, 0.18);
-            backdrop-filter: blur(16px); display: flex; flex-direction: column;
-            position: relative; overflow: hidden;
-        }
-
-        .hud-header {
-            padding: 16px 22px; border-bottom: 1px solid var(--border-cyan);
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0, 243, 255, 0.03); flex-shrink: 0;
-        }
-
-        .hud-title { font-family: 'Orbitron', sans-serif; font-size: 1.35rem; font-weight: 800; color: var(--cyan-glow); letter-spacing: 1px; }
-        
-        .hud-status {
-            font-size: 0.72rem; color: var(--orange-glow); font-family: 'Orbitron', sans-serif;
-            border: 1px solid var(--border-orange); padding: 4px 10px; border-radius: 20px;
-            background: var(--orange-dim); cursor: pointer; transition: all 0.2s ease;
-        }
-        .hud-status:hover { background: rgba(255, 119, 0, 0.3); transform: scale(1.02); }
-
-        /* Chat Display Feed */
-        .chat-feed {
-            flex: 1; padding: 18px; overflow-y: auto; display: flex; flex-direction: column;
-            gap: 14px; scroll-behavior: smooth;
-        }
-
-        .msg { max-width: 88%; padding: 12px 16px; border-radius: 14px; font-size: 0.98rem; line-height: 1.45; }
-        .msg.bot {
-            align-self: flex-start; background: rgba(0, 243, 255, 0.08);
-            border: 1px solid rgba(0, 243, 255, 0.3); color: #f0fbfd;
-            border-bottom-left-radius: 4px;
-        }
-        .msg.user {
-            align-self: flex-end; background: var(--orange-dim);
-            border: 1px solid var(--border-orange); color: #fff;
-            border-bottom-right-radius: 4px;
-        }
-
-        .gen-media { width: 100%; max-width: 340px; border-radius: 12px; border: 1.5px solid var(--cyan-glow); margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-
-        /* Bottom Floating Pill Container */
-        .input-container {
-            padding: 14px 16px 18px 16px;
-            background: rgba(5, 10, 18, 0.85);
-            flex-shrink: 0;
-        }
-
-        /* Pixel Perfect Gemini Pill Bar */
-        .gemini-pill-bar {
-            width: 100%;
-            height: 58px;
-            background-color: var(--gemini-bg);
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            padding: 0 8px 0 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
-            transition: all 0.25s ease;
-        }
-
-        .gemini-pill-bar:focus-within {
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 243, 255, 0.4), 0 0 15px rgba(0, 243, 255, 0.15);
-            background-color: #232529;
-        }
-
-        /* Left Attachment Plus Button */
-        .pill-add-btn {
-            background: transparent;
-            border: none;
-            color: var(--gemini-icon);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            padding: 6px;
-            border-radius: 50%;
-            margin-right: 10px;
-            transition: background 0.2s;
-            flex-shrink: 0;
-        }
-
-        .pill-add-btn:hover { background-color: rgba(255, 255, 255, 0.08); }
-
-        .pill-add-btn svg { width: 22px; height: 22px; stroke: #e3e3e3; stroke-width: 1.8; }
-
-        /* Input Text Field */
-        .pill-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #f1f3f4;
-            font-family: 'Inter', sans-serif;
-            font-size: 1.05rem;
-            font-weight: 400;
-        }
-
-        .pill-input::placeholder {
-            color: var(--gemini-placeholder);
-            font-family: 'Inter', sans-serif;
-            font-size: 1.05rem;
-        }
-
-        /* Right Actions Group */
-        .pill-actions {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-
-        /* Mic Button */
-        .pill-mic-btn {
-            background: transparent;
-            border: none;
-            color: var(--gemini-icon);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            transition: background 0.2s, transform 0.1s;
-        }
-
-        .pill-mic-btn:hover { background-color: rgba(255, 255, 255, 0.08); }
-        .pill-mic-btn:active { transform: scale(0.95); }
-
-        .pill-mic-btn svg { width: 22px; height: 22px; fill: none; stroke: #e3e3e3; stroke-width: 1.8; }
-
-        /* Circular Blue Waveform Button */
-        .pill-wave-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-color: var(--gemini-blue-btn);
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            margin-left: 2px;
-        }
-
-        .pill-wave-btn:hover {
-            background-color: var(--gemini-blue-btn-hover);
-            box-shadow: 0 0 14px var(--gemini-blue-glow);
-            transform: scale(1.04);
-        }
-
-        .pill-wave-btn:active { transform: scale(0.95); }
-
-        .pill-wave-btn.recording {
-            background-color: #b3261e;
-            animation: pulse-red 1.2s infinite alternate;
-        }
-
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(179, 38, 30, 0.7); }
-            100% { box-shadow: 0 0 0 10px rgba(179, 38, 30, 0); }
-        }
-
-        /* Waveform Vertical Lines */
-        .waveform-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            height: 18px;
-        }
-
-        .wave-bar {
-            width: 3px;
-            background-color: #ffffff;
-            border-radius: 2px;
-            transition: height 0.2s ease;
-        }
-
-        .wave-bar:nth-child(1) { height: 8px; }
-        .wave-bar:nth-child(2) { height: 16px; }
-        .wave-bar:nth-child(3) { height: 22px; }
-        .wave-bar:nth-child(4) { height: 14px; }
-        .wave-bar:nth-child(5) { height: 9px; }
-
-        /* Send Arrow Button (Appears on Input) */
-        .pill-send-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background-color: var(--orange-glow);
-            border: none;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 10px rgba(255, 119, 0, 0.4);
-        }
-
-        .pill-send-btn:hover { transform: scale(1.05); background-color: #ff8800; }
-        .pill-send-btn svg { width: 20px; height: 20px; fill: #ffffff; }
-
-        /* Config Modal Overlay */
-        .key-modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 10, 18, 0.96); z-index: 100; display: flex;
-            flex-direction: column; justify-content: center; align-items: center; padding: 25px;
-        }
-
-        .key-modal input {
-            width: 100%; padding: 12px; margin: 8px 0; background: rgba(0,243,255,0.05);
-            border: 1px solid var(--cyan-glow); color: #fff; border-radius: 10px; font-size: 0.9rem; outline: none;
-        }
-
-        .btn-group { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
-        .btn-primary { background: var(--orange-dim); border: 1px solid var(--orange-glow); color: var(--orange-glow); padding: 12px; border-radius: 10px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.85rem; font-weight: 700; }
-        .btn-secondary { background: rgba(0, 243, 255, 0.1); border: 1px solid var(--cyan-glow); color: var(--cyan-glow); padding: 10px; border-radius: 10px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.8rem; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#06111f">
+<title>J.A.R.V.I.S.</title>
+<title2>Made by Sai Charan. Koduru</title2>   
+<style>
+:root {
+  --bg: #06111f;
+  --panel: #091b29;
+  --cyan: #00eaff;
+  --muted: #a8c7d5;
+  --line: #07586a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: #e8faff;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+}
+header {
+  position: sticky; top: 0; z-index: 2;
+  background: #071b27; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 15px; gap: 10px;
+}
+h1 { margin: 0; font-size: 25px; letter-spacing: 3px; color: var(--cyan); }
+#status { font-size: 11px; color: #ff9b28; }
+main { max-width: 760px; margin: auto; padding: 14px; }
+.hero { text-align: center; padding: 22px 0 12px; }
+.orb {
+  width: 92px; height: 92px; margin: auto; border-radius: 50%;
+  background: radial-gradient(circle, #d7ffff, #04b6cf 35%, #073047 68%, #06111f 72%);
+  box-shadow: 0 0 24px #00d9ff; animation: glow 3s infinite alternate;
+}
+@keyframes glow { to { box-shadow: 0 0 38px #00eaff; } }
+button, input, textarea {
+  font: inherit; border-radius: 13px; padding: 12px;
+}
+button {
+  border: 1px solid #087a8c; background: #0a2938;
+  color: var(--cyan); cursor: pointer;
+}
+button:disabled { opacity: .5; }
+button.primary { background: var(--cyan); color: #00131a; font-weight: 700; }
+button.danger { color: #ffb6b6; }
+.tools { display: flex; gap: 7px; flex-wrap: wrap; margin: 10px 0; }
+#chat {
+  height: 47vh; min-height: 270px; overflow-y: auto;
+  border: 1px solid var(--line); background: #081622;
+  border-radius: 17px; padding: 12px;
+}
+.message {
+  white-space: pre-wrap; overflow-wrap: anywhere;
+  padding: 12px; border-radius: 14px; margin: 10px 0;
+  line-height: 1.5;
+}
+.user { background: #12374b; margin-left: 12%; }
+.assistant { background: #0a2931; border: 1px solid #07586a; margin-right: 6%; }
+.message img { max-width: 100%; border-radius: 12px; margin-top: 8px; }
+small, .hint { color: var(--muted); font-size: 12px; }
+.composer {
+  position: sticky; bottom: 0; background: var(--bg);
+  padding: 12px 0; border-top: 1px solid #143342;
+}
+textarea, input[type="text"] {
+  width: 100%; background: #102535; color: white;
+  border: 1px solid #215063; resize: vertical;
+}
+#preview { max-width: 100%; max-height: 220px; display: none; margin: 8px 0; border-radius: 12px; }
+#generated { width: 100%; border-radius: 14px; margin-top: 10px; display: none; }
+</style>
 </head>
 <body>
+<header>
+  <h1>J.A.R.V.I.S.</h1>
+  <span id="status">● READY</span>
+</header>
 
-    <div class="hud-card">
-        <!-- Configuration Overlay -->
-        <div class="key-modal" id="keyModal" style="display:none;">
-            <h3 style="color:var(--cyan-glow); font-family:'Orbitron'; margin-bottom:6px;">SETTINGS</h3>
-            <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:12px;">Add API keys for Pro Mode or continue with No-Key Mode.</p>
+<main>
+  <section class="hero">
+    <div class="orb"></div>
+    <p>PERSONAL AI ASSISTANT</p>
+    <small>Online AI · Vision · Voice · Memory</small>
+  </section>
 
-            <input type="password" id="groqKeyInput" placeholder="Groq API Key (gsk_...) - Optional">
-            <input type="password" id="openaiKeyInput" placeholder="OpenAI API Key (sk-...) - Optional">
-            
-            <div class="btn-group">
-                <button class="btn-primary" onclick="saveKeys()">ENABLE PRO MODE</button>
-                <button class="btn-secondary" onclick="closeModal()">⚡ USE NO-KEY MODE</button>
-            </div>
-        </div>
+  <div id="chat" aria-live="polite"></div>
 
-        <!-- Main Header -->
-        <div class="hud-header">
-            <div class="hud-title">J.A.R.V.I.S.</div>
-            <div class="hud-status" id="status" onclick="openModal()" title="Click to configure API Keys">NO-KEY MODE (FREE)</div>
-        </div>
+  <div class="tools">
+    <button id="newChat">＋ New chat</button>
+    <button id="historyBtn">History</button>
+    <button id="clearHistory" class="danger">Clear history</button>
+    <button id="voiceToggle">🔊 Voice ON</button>
+  </div>
 
-        <!-- Chat Output Feed -->
-        <div class="chat-feed" id="chatFeed"></div>
+  <div id="historyPanel" hidden>
+    <p>Saved conversation history (this device only)</p>
+    <div id="historyList"></div>
+  </div>
 
-        <!-- Gemini Input Pill Container -->
-        <div class="input-container">
-            <div class="gemini-pill-bar">
-                
-                <!-- Attachment '+' Icon -->
-                <button class="pill-add-btn" title="Add File Attachment" onclick="triggerFileUpload()">
-                    <svg viewBox="0 0 24 24" fill="none">
-                        <line x1="12" y1="5" x2="12" y2="19" stroke-linecap="round"></line>
-                        <line x1="5" y1="12" x2="19" y2="12" stroke-linecap="round"></line>
-                    </svg>
-                </button>
-                <input type="file" id="fileInput" style="display:none;" onchange="handleFileSelected(event)">
+  <div class="composer">
+    <textarea id="prompt" rows="2" maxlength="5000"
+      placeholder="Ask JARVIS anything, Boss..."></textarea>
 
-                <!-- Text Input Bar -->
-                <input type="text" id="userInput" class="pill-input" placeholder="Ask J.A.R.V.I.S" oninput="handleInputTyping()" onkeydown="if(event.key==='Enter') sendDirective()">
+    <input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+    <img id="preview" alt="Selected image preview">
 
-                <!-- Actions Group -->
-                <div class="pill-actions">
-                    <!-- Microphone Button -->
-                    <button class="pill-mic-btn" id="micBtn" title="Voice Input" onclick="toggleVoiceInput()">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" stroke-linecap="round" stroke-linejoin="round"></path>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke-linecap="round" stroke-linejoin="round"></path>
-                            <line x1="12" y1="19" x2="12" y2="22" stroke-linecap="round"></line>
-                        </svg>
-                    </button>
-
-                    <!-- Circular Blue Audio Waveform Button (TTS / Live Mode Toggle) -->
-                    <button class="pill-wave-btn" id="waveBtn" title="Toggle Audio Response" onclick="toggleTTS()">
-                        <div class="waveform-icon">
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                            <div class="wave-bar"></div>
-                        </div>
-                    </button>
-
-                    <!-- Dynamic Send Button -->
-                    <button class="pill-send-btn" id="sendBtn" title="Send Directive" onclick="sendDirective()">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-                        </svg>
-                    </button>
-                </div>
-
-            </div>
-        </div>
+    <div class="tools">
+      <button id="chooseImage">＋ Image</button>
+      <button id="analyze">👁 Ask about image</button>
+      <button id="generate">🎨 Create image</button>
+      <button id="mic">🎙 Speak</button>
+      <button id="send" class="primary">Send ➤</button>
     </div>
+    <small class="hint">
+      Your text chat is saved locally. Avoid entering passwords or sensitive
+      information. Image uploads are sent to the AI service for analysis.
+    </small>
+  </div>
 
-    <script>
-        let GROQ_API_KEY = localStorage.getItem("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") || "";
-        let OPENAI_API_KEY = localStorage.getItem("sk-proj-SZgXYwJtIerDU2B0Lrm_-cyvtjJ7c2-LMKfZwDKehf3r9uImXCbCzZ_Ko7KtLoDzL-nVpCszvmQT3BlbkFJrdDR-rVjyNU91hbLlOAU0rYvF3KI1lfEIO1-KaCrMk0s8WmrBZ2DLSglb9Px0y9PqIc-Jk5zwAA") || "";
-        let ttsEnabled = true;
+  <img id="generated" alt="Generated JARVIS image">
+  <p id="generatedActions" hidden>
+    <a id="imageDownload" download="jarvis-image.png" style="color:#00eaff">Save generated image</a>
+  </p>
+</main>
 
-        const keyModal = document.getElementById("keyModal");
-        const chatFeed = document.getElementById("chatFeed");
-        const userInput = document.getElementById("userInput");
-        const statusText = document.getElementById("status");
-        const waveBtn = document.getElementById("waveBtn");
-        const sendBtn = document.getElementById("sendBtn");
-        const micBtn = document.getElementById("micBtn");
+<script>
+const API = "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";
+const STORAGE = "jarvis_history_v1";
+const MAX_MESSAGES = 100;
 
-        function updateStatusDisplay() {
-            if (GROQ_API_KEY || OPENAI_API_KEY) {
-                statusText.innerText = "PRO MODE (ACTIVE)";
-            } else {
-                statusText.innerText = "NO-KEY MODE (FREE)";
-            }
-        }
+const $ = id => document.getElementById(id);
+const chat = $("chat");
+const promptBox = $("prompt");
+const fileInput = $("file");
+const preview = $("preview");
+let selectedImage = "";
+let voiceOn = true;
+let busy = false;
+let history = loadHistory();
 
-        function openModal() { keyModal.style.display = "flex"; }
-        function closeModal() { keyModal.style.display = "none"; }
+function loadHistory() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE) || "[]");
+    return Array.isArray(data) ? data.slice(-MAX_MESSAGES) : [];
+  } catch {
+    return [];
+  }
+}
 
-        function saveKeys() {
-            const gKey = document.getElementById("groqKeyInput").value.trim();
-            const oKey = document.getElementById("openaiKeyInput").value.trim();
-            if (gKey) localStorage.setItem("jarvis_groq_key", gKey);
-            if (oKey) localStorage.setItem("jarvis_openai_key", oKey);
-            GROQ_API_KEY = gKey || GROQ_API_KEY;
-            OPENAI_API_KEY = oKey || OPENAI_API_KEY;
-            updateStatusDisplay();
-            closeModal();
-        }
+function saveHistory() {
+  try {
+    localStorage.setItem(STORAGE, JSON.stringify(history.slice(-MAX_MESSAGES)));
+  } catch {
+    setStatus("Storage full");
+  }
+}
 
-        let messages = [{ role: "assistant", content: "Greetings Boss! J.A.R.V.I.S. interface initialized. How can I assist you today?" }];
+function setStatus(text) {
+  $("status").textContent = "● " + text;
+}
 
-        function renderChat() {
-            chatFeed.innerHTML = "";
-            messages.forEach(msg => {
-                const div = document.createElement("div");
-                div.className = `msg ${msg.role === 'user' ? 'user' : 'bot'}`;
-                if (msg.type === "image") {
-                    div.innerHTML = `<div>${msg.content}</div><img src="${msg.mediaUrl}" class="gen-media" alt="Visual Output">`;
-                } else {
-                    div.innerText = msg.content;
-                }
-                chatFeed.appendChild(div);
-            });
-            chatFeed.scrollTop = chatFeed.scrollHeight;
-        }
+function addMessage(role, text, save = true) {
+  const item = { role, content: text, time: Date.now() };
+  history.push(item);
+  history = history.slice(-MAX_MESSAGES);
+  renderMessage(item);
+  if (save) saveHistory();
+}
 
-        /* Toggle Send Button vs Mic/Waveform based on input text */
-        function handleInputTyping() {
-            if (userInput.value.trim().length > 0) {
-                sendBtn.style.display = "flex";
-                waveBtn.style.display = "none";
-            } else {
-                sendBtn.style.display = "none";
-                waveBtn.style.display = "flex";
-            }
-        }
+function renderMessage(item) {
+  const div = document.createElement("div");
+  div.className = "message " + (item.role === "user" ? "user" : "assistant");
+  div.textContent = (item.role === "user" ? "YOU: " : "JARVIS: ") + item.content;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
 
-        function speakText(text) {
-            if (!ttsEnabled || !('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel();
-            const speech = new SpeechSynthesisUtterance(text);
-            speech.rate = 1.0;
-            speech.pitch = 0.95;
-            window.speechSynthesis.speak(speech);
-        }
+function renderHistory() {
+  chat.replaceChildren();
+  if (!history.length) {
+    renderMessage({
+      role: "assistant",
+      content: "All systems online, Boss. How can I help you today?"
+    });
+    return;
+  }
+  history.forEach(renderMessage);
+}
 
-        function toggleTTS() {
-            ttsEnabled = !ttsEnabled;
-            if (ttsEnabled) {
-                waveBtn.style.backgroundColor = "var(--gemini-blue-btn)";
-                speakText("Audio response enabled, Boss.");
-            } else {
-                waveBtn.style.backgroundColor = "#2b2d31";
-                window.speechSynthesis.cancel();
-            }
-        }
+function speak(text) {
+  if (!voiceOn || !("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 1;
+  speechSynthesis.speak(utterance);
+}
 
-        function triggerFileUpload() { document.getElementById("fileInput").click(); }
+async function api(path, body) {
+  if (!API.startsWith("https://")) {
+    throw new Error("Add your deployed HTTPS Worker URL in index.html.");
+  }
+  const response = await fetch(API + path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Request failed (" + response.status + ")");
+  return data;
+}
 
-        function handleFileSelected(e) {
-            const file = e.target.files[0];
-            if (file) {
-                messages.push({ role: "user", content: `[Attached File: ${file.name}]` });
-                messages.push({ role: "assistant", content: `Attachment "${file.name}" received successfully.` });
-                renderChat();
-            }
-        }
+function setBusy(value) {
+  busy = value;
+  ["send", "analyze", "generate", "mic"].forEach(id => {
+    $(id).disabled = value;
+  });
+}
 
-        function toggleVoiceInput() {
-            if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-                alert("Speech Recognition is not supported in this browser.");
-                return;
-            }
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const rec = new SpeechRec();
-            rec.lang = 'en-US';
-            rec.start();
-            
-            waveBtn.classList.add("recording");
-            statusText.innerText = "LISTENING...";
+async function sendChat() {
+  const text = promptBox.value.trim();
+  if (!text || busy) return;
 
-            rec.onresult = (e) => {
-                userInput.value = e.results[0][0].transcript;
-                handleInputTyping();
-                sendDirective();
-            };
-            rec.onerror = () => { updateStatusDisplay(); waveBtn.classList.remove("recording"); };
-            rec.onend = () => { updateStatusDisplay(); waveBtn.classList.remove("recording"); };
-        }
+  promptBox.value = "";
+  addMessage("user", text);
+  setBusy(true);
+  setStatus("THINKING...");
 
-        /* Free No-Key Visual Renderer */
-        function generateCanvasImage(prompt) {
-            const canvas = document.createElement("canvas");
-            canvas.width = 1024; canvas.height = 1024;
-            const ctx = canvas.getContext("2d");
+  try {
+    const messages = history
+      .filter(m => m.role === "user" || m.role === "assistant")
+      .slice(-20)
+      .map(m => ({ role: m.role, content: m.content }));
 
-            const bg = ctx.createLinearGradient(0, 0, 1024, 1024);
-            bg.addColorStop(0, "#050a12"); bg.addColorStop(1, "#0a1c33");
-            ctx.fillStyle = bg; ctx.fillRect(0, 0, 1024, 1024);
+    const result = await api("/chat", { messages });
+    addMessage("assistant", result.answer || "No answer returned.");
+    speak(result.answer || "");
+    setStatus("READY");
+  } catch (error) {
+    addMessage("assistant", "Sorry, Boss. " + error.message);
+    setStatus("ERROR");
+  } finally {
+    setBusy(false);
+  }
+}
 
-            ctx.strokeStyle = "rgba(0, 243, 255, 0.15)";
-            ctx.lineWidth = 1;
-            for(let i=0; i<1024; i+=64) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 1024); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(1024, i); ctx.stroke();
-            }
+$("send").onclick = sendChat;
+promptBox.addEventListener("keydown", event => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    sendChat();
+  }
+});
 
-            ctx.save(); ctx.translate(512, 512);
-            for(let r=120; r<=380; r+=65) {
-                ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
-                ctx.strokeStyle = r%130 === 0 ? "rgba(255, 119, 0, 0.45)" : "rgba(0, 243, 255, 0.45)";
-                ctx.lineWidth = 3; ctx.stroke();
-            }
+$("chooseImage").onclick = () => fileInput.click();
 
-            ctx.fillStyle = "#00f3ff";
-            ctx.font = "bold 32px 'Orbitron', sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText(prompt.toUpperCase().substring(0, 26), 0, 0);
-            ctx.restore();
+fileInput.onchange = () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+    alert("Choose a PNG, JPG or WebP image.");
+    fileInput.value = "";
+    return;
+  }
+  if (file.size > 3_500_000) {
+    alert("Choose an image smaller than 3.5 MB.");
+    fileInput.value = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    selectedImage = reader.result;
+    preview.src = selectedImage;
+    preview.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+};
 
-            return canvas.toDataURL("image/png");
-        }
+$("analyze").onclick = async () => {
+  if (!selectedImage) {
+    alert("Choose an image first.");
+    return;
+  }
+  const question = promptBox.value.trim() || "Describe this image and answer any visible question.";
+  promptBox.value = "";
+  addMessage("user", "[Image attached] " + question);
+  setBusy(true);
+  setStatus("ANALYZING IMAGE...");
 
-        /* OpenAI DALL-E 3 API (Pro Mode Image Generator) */
-        async function generateDalleImage(prompt) {
-            const response = await fetch("https://api.openai.com/v1/images/generations", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${OPENAI_API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ model: "dall-e-3", prompt: prompt, n: 1, size: "1024x1024" })
-            });
+  try {
+    const result = await api("/vision", {
+      image: selectedImage,
+      question
+    });
+    addMessage("assistant", result.answer || "No image answer returned.");
+    speak(result.answer || "");
+    setStatus("READY");
+  } catch (error) {
+    addMessage("assistant", "Image analysis failed: " + error.message);
+    setStatus("ERROR");
+  } finally {
+    setBusy(false);
+  }
+};
 
-            const data = await response.json();
-            if (data.error) throw new Error(data.error.message);
-            return data.data[0].url;
-        }
+$("generate").onclick = async () => {
+  const description = promptBox.value.trim();
+  if (!description) {
+    alert("Describe the image you want JARVIS to create.");
+    return;
+  }
 
-        async function sendDirective() {
-            const text = userInput.value.trim();
-            if (!text) return;
+  promptBox.value = "";
+  addMessage("user", "[Create image] " + description);
+  setBusy(true);
+  setStatus("CREATING IMAGE...");
 
-            messages.push({ role: "user", content: text });
-            renderChat();
-            userInput.value = "";
-            handleInputTyping();
+  try {
+    const response = await fetch(API + "/image", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: description })
+    });
 
-            const lowerText = text.toLowerCase();
-            const isImageRequest = lowerText.includes("image") || lowerText.includes("photo") || lowerText.includes("draw") || lowerText.includes("బొమ్మ") || lowerText.includes("generate") || lowerText.includes("create");
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || "Image generation failed.");
+    }
 
-            if (isImageRequest) {
-                statusText.innerText = "RENDERING...";
-                try {
-                    let cleanPrompt = text.replace(/generate|create|an|a|image|photo|picture|of|draw|బొమ్మ/gi, "").trim();
-                    let imageUrl = "";
+    const blob = await response.blob();
+    if (!blob.type.startsWith("image/")) throw new Error("Invalid image response.");
 
-                    if (OPENAI_API_KEY) {
-                        imageUrl = await generateDalleImage(cleanPrompt || text);
-                    } else {
-                        imageUrl = generateCanvasImage(cleanPrompt || text);
-                    }
+    const objectURL = URL.createObjectURL(blob);
+    $("generated").src = objectURL;
+    $("generated").style.display = "block";
+    $("imageDownload").href = objectURL;
+    $("generatedActions").hidden = false;
+    addMessage("assistant", "Your image is ready, Boss. It is displayed below the chat.");
+    setStatus("READY");
+  } catch (error) {
+    addMessage("assistant", "Image creation failed: " + error.message);
+    setStatus("ERROR");
+  } finally {
+    setBusy(false);
+  }
+};
 
-                    const responseMsg = "Visual render complete, Boss.";
-                    messages.push({ role: "assistant", type: "image", content: responseMsg, mediaUrl: imageUrl });
-                    speakText(responseMsg);
-                } catch(e) {
-                    messages.push({ role: "assistant", content: `Image Generation Error: ${e.message}` });
-                }
-                renderChat();
-                updateStatusDisplay();
+$("voiceToggle").onclick = () => {
+  voiceOn = !voiceOn;
+  $("voiceToggle").textContent = voiceOn ? "🔊 Voice ON" : "🔇 Voice OFF";
+  if (!voiceOn && "speechSynthesis" in window) speechSynthesis.cancel();
+};
 
-            } else {
-                statusText.innerText = "PROCESSING...";
-                if (GROQ_API_KEY) {
-                    try {
-                        const apiMessages = messages.filter(m => !m.type).map(m => ({ role: m.role, content: m.content }));
-                        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                            method: "POST",
-                            headers: { "Authorization": `Bearer ${GROQ_API_KEY}`, "Content-Type": "application/json" },
-                            body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages: apiMessages })
-                        });
-                        const data = await res.json();
-                        if (data.choices && data.choices[0]) {
-                            const botReply = data.choices[0].message.content;
-                            messages.push({ role: "assistant", content: botReply });
-                            speakText(botReply);
-                        }
-                    } catch (err) {
-                        messages.push({ role: "assistant", content: "Groq API error. Check your key in settings." });
-                    }
-                } else {
-                    const fallbackReply = `Directive received: "${text}". Standing by, Boss! Click status header anytime if you want to configure Groq/OpenAI keys.`;
-                    messages.push({ role: "assistant", content: fallbackReply });
-                    speakText("Directive received, standing by.");
-                }
-                renderChat(); 
-                updateStatusDisplay();
-            }
-        }
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+$("mic").onclick = () => {
+  if (!Recognition) {
+    alert("Speech recognition is not supported in this browser. Please type your message.");
+    return;
+  }
+  const recognition = new Recognition();
+  recognition.lang = "en-IN";
+  recognition.interimResults = false;
+  recognition.onstart = () => setStatus("LISTENING...");
+  recognition.onresult = event => {
+    promptBox.value = event.results[0][0].transcript;
+    sendChat();
+  };
+  recognition.onerror = () => setStatus("MICROPHONE ERROR");
+  recognition.onend = () => {
+    if (!busy) setStatus("READY");
+  };
+  recognition.start();
+};
 
-        updateStatusDisplay();
-        renderChat();
-    </script>
+$("newChat").onclick = () => {
+  history = [];
+  saveHistory();
+  renderHistory();
+  selectedImage = "";
+  preview.style.display = "none";
+  fileInput.value = "";
+};
+
+$("clearHistory").onclick = () => {
+  if (!confirm("Delete all saved JARVIS chat history from this browser?")) return;
+  history = [];
+  saveHistory();
+  renderHistory();
+};
+
+$("historyBtn").onclick = () => {
+  $("historyPanel").hidden = !$("historyPanel").hidden;
+  if (!$("historyPanel").hidden) {
+    const list = $("historyList");
+    list.replaceChildren();
+    const userMessages = history.filter(m => m.role === "user");
+    if (!userMessages.length) {
+      list.textContent = "No saved conversations yet.";
+    } else {
+      userMessages.forEach((m, index) => {
+        const button = document.createElement("button");
+        button.style.display = "block";
+        button.style.width = "100%";
+        button.style.margin = "5px 0";
+        button.textContent = new Date(m.time).toLocaleString() + " — " +
+          m.content.slice(0, 70);
+        button.onclick = () => {
+          chat.replaceChildren();
+          history.slice(0, history.indexOf(m) + 1).forEach(renderMessage);
+          $("historyPanel").hidden = true;
+        };
+        list.appendChild(button);
+      });
+    }
+  }
+};
+
+renderHistory();
+</script>
 </body>
 </html>
