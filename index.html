@@ -1,378 +1,282 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#06111e">
-<title>J.A.R.V.I.S. — Personal AI</title>
-<title2>Made by Sai Charan. Koduru</title2>  
-<style>
-:root{color-scheme:dark;--bg:#06111e;--panel:#0a1c2a;--cyan:#00eaff;--border:#006778;--text:#e1f7ff;--muted:#9bbdcb}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{padding:22px 18px;display:flex;align-items:center;justify-content:space-between;background:#071c28;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:3}
-.logo{font-size:clamp(23px,6vw,36px);font-weight:800;letter-spacing:5px;color:var(--cyan)}
-.status{font-size:13px;color:#ffb34d}
-main{max-width:900px;margin:auto;padding:20px 14px 30px}
-.hero{text-align:center;padding:22px 0}
-.orb{width:105px;height:105px;border-radius:50%;margin:0 auto 24px;background:radial-gradient(circle at 35% 30%,#b5ffff,#00a9d0 35%,#062039 72%);box-shadow:0 0 32px #00dfff80}
-h1{font-size:26px;font-weight:500}
-.hero p{color:var(--muted)}
-.chat{height:min(48vh,500px);min-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:24px;padding:16px;background:#081723}
-.msg{padding:13px 15px;border-radius:20px;margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55}
-.bot{background:#092b32;border:1px solid #006778;margin-right:8%}
-.user{background:#12394b;margin-left:8%}
-.msg img{max-width:100%;border-radius:12px;display:block;margin-top:8px}
-.composer{margin-top:14px}
-textarea{width:100%;resize:vertical;min-height:78px;max-height:220px;background:#102738;color:var(--text);border:1px solid #28566a;border-radius:20px;padding:17px;font:inherit;font-size:17px;outline:none}
-textarea:focus{border-color:var(--cyan)}
-.preview{max-width:100%;max-height:200px;display:block;margin:10px auto;border-radius:12px}
-.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
-button,.filebtn{background:#0b2938;color:var(--cyan);border:1px solid #00899a;border-radius:18px;padding:13px 15px;font:inherit;font-size:15px;cursor:pointer}
-button:disabled{opacity:.45}
-button.primary{background:var(--cyan);color:#00202a;font-weight:800}
-button.small{padding:9px 12px;font-size:13px}
-#file{display:none}
-.note{font-size:13px;line-height:1.6;color:var(--muted);margin-top:18px}
-a{color:var(--cyan)}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSphere - Online Compiler</title>
+    
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background-color: #1e293b;
+            border-bottom: 1px solid #334155;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Styled Logo Badge instead of broken image */
+        .app-logo-badge {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #0f172a;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        select, button {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background-color: #334155;
+            color: #f8fafc;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        select:hover {
+            background-color: #475569;
+        }
+
+        .run-btn {
+            background-color: #10b981;
+            border-color: #059669;
+            font-weight: 600;
+        }
+
+        .run-btn:hover {
+            background-color: #059669;
+        }
+
+        /* Workspace */
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #334155;
+        }
+
+        .pane:last-child {
+            border-right: none;
+        }
+
+        .pane-header {
+            background-color: #1e293b;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #94a3b8;
+            border-bottom: 1px solid #334155;
+        }
+
+        .CodeMirror {
+            flex: 1;
+            height: auto !important;
+            font-size: 14px;
+        }
+
+        #output {
+            flex: 1;
+            background-color: #090d16;
+            color: #38bdf8;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+                height: auto;
+            }
+            .workspace {
+                flex-direction: column;
+                height: auto;
+            }
+            .pane {
+                height: 400px;
+            }
+        }
+    </style>
 </head>
 <body>
-<header>
-  <div class="logo">J.A.R.V.I.S.</div>
-  <div class="status" id="status">● ONLINE</div>
-</header>
 
-<main>
-  <section class="hero">
-    <div class="orb"></div>
-    <h1>JARVIS OUR'S PERSONAL AI</h1>
-    <p>Online AI · Vision · Voice · Memory</p>
-  </section>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-container">
+            <div class="app-logo-badge">&lt;/&gt;</div>
+            <h1>CodeSphere</h1>
+        </div>
+        <div class="controls">
+            <select id="language-select">
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="cpp">C++</option>
+                <option value="java">Java</option>
+            </select>
+            <button class="run-btn" id="run-btn">▶ Run Code</button>
+        </div>
+    </header>
 
-  <section class="chat" id="chat" aria-live="polite"></section>
-
-  <section class="composer">
-    <textarea id="prompt" placeholder="Ask JARVIS anything, Boss..." aria-label="Message"></textarea>
-    <img id="preview" class="preview" hidden alt="Selected image preview">
-    <div class="actions">
-      <label class="filebtn" for="file">＋ Image</label>
-      <input id="file" type="file" accept="image/*">
-      <button id="vision">👁 Ask about image</button>
-      <button id="generate">🎨 Create image</button>
-      <button id="speak">🎙 Speak</button>
-      <button id="send" class="primary">Send ➤</button>
-      <button id="voiceToggle" class="small">🔊 Voice replies: ON</button>
-      <button id="clear" class="small">🗑 Clear history</button>
+    <!-- Workspace -->
+    <div class="workspace">
+        <!-- Editor -->
+        <div class="pane">
+            <div class="pane-header">Source Code</div>
+            <textarea id="editor-textarea">console.log("Hello CodeSphere!");
+let a = 10;
+let b = 20;
+console.log("Sum:", a + b);</textarea>
+        </div>
+        
+        <!-- Output -->
+        <div class="pane">
+            <div class="pane-header">Output</div>
+            <pre id="output">Click "Run Code" to see output...</pre>
+        </div>
     </div>
-  </section>
 
-  <p class="note">
-    Chat history is stored locally on this device. Don't enter passwords,
-    private keys, or sensitive information. Image questions send your selected
-    image to your configured AI service. Voice input depends on browser support.
-  </p>
-</main>
+    <!-- CodeMirror Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/clike/clike.min.js"></script>
 
-<script>
-/*
-  IMPORTANT:
-  Replace this placeholder with your deployed Cloudflare Worker URL.
-  Example format: https://your-worker.your-subdomain.workers.dev
-  Never put Groq or Pollinations API keys in this file.
-*/
-const API = "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";
+    <script>
+        // Editor Setup
+        var editor = CodeMirror.fromTextArea(document.getElementById("editor-textarea"), {
+            lineNumbers: true,
+            theme: "dracula",
+            mode: "javascript",
+            indentUnit: 4
+        });
 
-const $ = id => document.getElementById(id);
-const chat = $("chat");
-const promptBox = $("prompt");
-const fileInput = $("file");
-const preview = $("preview");
-const statusBox = $("status");
+        // Language Switcher Mode
+        document.getElementById("language-select").addEventListener("change", function() {
+            let lang = this.value;
+            if (lang === "javascript") editor.setOption("mode", "javascript");
+            else if (lang === "python") editor.setOption("mode", "python");
+            else if (lang === "cpp" || lang === "java") editor.setOption("mode", "text/x-c++src");
+        });
 
-let selectedImage = null;
-let voiceReplies = true;
-let history = [];
+        // Execution Logic (Piston API for multi-language + Local fallback for JS)
+        document.getElementById("run-btn").addEventListener("click", async function() {
+            let code = editor.getValue();
+            let language = document.getElementById("language-select").value;
+            let outputScreen = document.getElementById("output");
+            
+            outputScreen.textContent = "Executing code...";
 
-try {
-  const saved = JSON.parse(localStorage.getItem("jarvis_history_v1") || "[]");
-  if (Array.isArray(saved)) history = saved.slice(-60);
-} catch { history = []; }
+            // If JavaScript, run locally instantly without API
+            if (language === "javascript") {
+                outputScreen.textContent = "";
+                let logs = [];
+                let originalConsoleLog = console.log;
+                
+                console.log = function(...args) {
+                    logs.push(args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : arg).join(' '));
+                    originalConsoleLog.apply(console, args);
+                };
 
-function setStatus(text) {
-  statusBox.textContent = "● " + text;
-}
+                try {
+                    let result = eval(code);
+                    if (logs.length > 0) {
+                        outputScreen.textContent = logs.join('\n');
+                    } else if (result !== undefined) {
+                        outputScreen.textContent = result;
+                    } else {
+                        outputScreen.textContent = "Code executed successfully (No output returned).";
+                    }
+                } catch (error) {
+                    outputScreen.textContent = "Error: " + error.message;
+                } finally {
+                    console.log = originalConsoleLog;
+                }
+                return;
+            }
 
-function saveHistory() {
-  try {
-    localStorage.setItem("jarvis_history_v1", JSON.stringify(history.slice(-60)));
-  } catch {
-    setStatus("HISTORY STORAGE FULL");
-  }
-}
+            // For other languages (Python, C++, Java), use Piston API
+            try {
+                let response = await fetch("https://emkc.org/api/v2/piston/execute", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        language: language,
+                        version: "*",
+                        files: [{ content: code }]
+                    })
+                });
 
-function addMessage(role, text, imageUrl = null, persist = true) {
-  const div = document.createElement("div");
-  div.className = "msg " + (role === "YOU" ? "user" : "bot");
-
-  const label = document.createElement("strong");
-  label.textContent = role + ": ";
-  div.appendChild(label);
-  div.appendChild(document.createTextNode(text || ""));
-
-  if (imageUrl) {
-    const img = document.createElement("img");
-    img.src = imageUrl;
-    img.alt = "JARVIS generated image";
-    div.appendChild(img);
-  }
-
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-
-  if (persist) {
-    history.push({ role, text: text || "", imageUrl: imageUrl || null });
-    history = history.slice(-60);
-    saveHistory();
-  }
-}
-
-function renderHistory() {
-  chat.replaceChildren();
-  if (!history.length) {
-    addMessage("JARVIS", "All systems online, Boss. How can I help you today?", null, false);
-    return;
-  }
-  history.forEach(m => addMessage(m.role, m.text, m.imageUrl, false));
-}
-
-function speakText(text) {
-  if (!voiceReplies || !("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-IN";
-  utterance.rate = 1;
-  window.speechSynthesis.speak(utterance);
-}
-
-async function postJSON(path, data) {
-  if (API.includes("PASTE_YOUR_WORKER_URL_HERE")) {
-    throw new Error("First add your deployed Cloudflare Worker URL to index.html.");
-  }
-
-  const response = await fetch(API + path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-
-  const contentType = response.headers.get("content-type") || "";
-  if (!response.ok) {
-    let message = "Request failed (" + response.status + ").";
-    if (contentType.includes("application/json")) {
-      const result = await response.json();
-      message = result.error || message;
-    }
-    throw new Error(message);
-  }
-
-  if (!contentType.includes("application/json")) {
-    throw new Error("The Worker returned an unexpected response.");
-  }
-  return response.json();
-}
-
-async function sendMessage() {
-  const message = promptBox.value.trim();
-  if (!message) return;
-
-  addMessage("YOU", message);
-  promptBox.value = "";
-  $("send").disabled = true;
-  setStatus("THINKING");
-
-  try {
-    const data = await postJSON("/chat", { message });
-    const reply = data.reply || "I didn't receive a text reply.";
-    addMessage("JARVIS", reply);
-    speakText(reply);
-    setStatus("ONLINE");
-  } catch (error) {
-    addMessage("JARVIS", "Sorry, Boss. " + error.message);
-    setStatus("ERROR");
-  } finally {
-    $("send").disabled = false;
-  }
-}
-
-fileInput.addEventListener("change", () => {
-  const file = fileInput.files && fileInput.files[0];
-  selectedImage = null;
-  preview.hidden = true;
-
-  if (!file) return;
-  if (!file.type.startsWith("image/")) {
-    addMessage("JARVIS", "Please choose an image file.");
-    fileInput.value = "";
-    return;
-  }
-  if (file.size > 5 * 1024 * 1024) {
-    addMessage("JARVIS", "Please choose an image smaller than 5 MB.");
-    fileInput.value = "";
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    selectedImage = reader.result;
-    preview.src = selectedImage;
-    preview.hidden = false;
-  };
-  reader.onerror = () => addMessage("JARVIS", "I couldn't read that image.");
-  reader.readAsDataURL(file);
-});
-
-async function askAboutImage() {
-  if (!selectedImage) {
-    addMessage("JARVIS", "Boss, tap + Image and select an image first.");
-    return;
-  }
-
-  const question = promptBox.value.trim() || "Describe this image and answer what you can see.";
-  addMessage("YOU", "Image question: " + question);
-  setStatus("ANALYZING IMAGE");
-  $("vision").disabled = true;
-
-  try {
-    const data = await postJSON("/vision", {
-      image: selectedImage,
-      question
-    });
-    const reply = data.reply || "I couldn't analyze this image.";
-    addMessage("JARVIS", reply);
-    speakText(reply);
-    setStatus("ONLINE");
-  } catch (error) {
-    addMessage("JARVIS", "Image analysis failed: " + error.message);
-    setStatus("ERROR");
-  } finally {
-    $("vision").disabled = false;
-  }
-}
-
-async function createImage() {
-  const description = promptBox.value.trim();
-  if (!description) {
-    addMessage("JARVIS", "Tell me what image you'd like me to create, Boss.");
-    promptBox.focus();
-    return;
-  }
-
-  addMessage("YOU", "Create image: " + description);
-  setStatus("CREATING IMAGE");
-  $("generate").disabled = true;
-
-  try {
-    if (API.includes("PASTE_YOUR_WORKER_URL_HERE")) {
-      throw new Error("First add your deployed Cloudflare Worker URL to index.html.");
-    }
-
-    const response = await fetch(API + "/image", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: description })
-    });
-
-    if (!response.ok) {
-      let message = "Image generation failed (" + response.status + ").";
-      try {
-        const data = await response.json();
-        message = data.error || message;
-      } catch {}
-      throw new Error(message);
-    }
-
-    const type = response.headers.get("content-type") || "";
-    if (!type.startsWith("image/")) {
-      throw new Error("The Worker did not return an image.");
-    }
-
-    const blob = await response.blob();
-    const imageUrl = URL.createObjectURL(blob);
-    addMessage("JARVIS", "Your image is ready, Boss.", imageUrl);
-    setStatus("ONLINE");
-  } catch (error) {
-    addMessage("JARVIS", "Image generation failed: " + error.message);
-    setStatus("ERROR");
-  } finally {
-    $("generate").disabled = false;
-  }
-}
-
-function startVoiceInput() {
-  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!Recognition) {
-    addMessage("JARVIS", "Voice input isn't supported in this browser. Try typing your message.");
-    return;
-  }
-
-  const recognition = new Recognition();
-  recognition.lang = "en-IN";
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = () => setStatus("LISTENING");
-  recognition.onresult = event => {
-    promptBox.value = event.results[0][0].transcript;
-    setStatus("VOICE READY");
-  };
-  recognition.onerror = event => {
-    addMessage("JARVIS", "Voice input error: " + event.error + ". You can type instead.");
-    setStatus("READY");
-  };
-  recognition.onend = () => {
-    if (statusBox.textContent.includes("LISTENING")) setStatus("READY");
-  };
-
-  try {
-    recognition.start();
-  } catch {
-    addMessage("JARVIS", "Please try the Speak button again.");
-  }
-}
-
-$("send").addEventListener("click", sendMessage);
-$("vision").addEventListener("click", askAboutImage);
-$("generate").addEventListener("click", createImage);
-$("speak").addEventListener("click", startVoiceInput);
-
-$("voiceToggle").addEventListener("click", () => {
-  voiceReplies = !voiceReplies;
-  $("voiceToggle").textContent = voiceReplies
-    ? "🔊 Voice replies: ON"
-    : "🔇 Voice replies: OFF";
-  if (!voiceReplies && "speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
-});
-
-$("clear").addEventListener("click", () => {
-  if (!confirm("Clear your saved JARVIS chat history on this device?")) return;
-  history = [];
-  saveHistory();
-  renderHistory();
-  setStatus("READY");
-});
-
-promptBox.addEventListener("keydown", event => {
-  if (event.key === "Enter" && !event.shiftKey) {
-    event.preventDefault();
-    sendMessage();
-  }
-});
-
-renderHistory();
-</script>
+                let result = await response.json();
+                if (result.run) {
+                    outputScreen.textContent = result.run.output || result.run.stderr;
+                } else {
+                    outputScreen.textContent = "Execution failed.";
+                }
+            } catch (error) {
+                outputScreen.textContent = "Error connecting to execution server: " + error.message;
+            }
+        });
+    </script>
 </body>
 </html>
